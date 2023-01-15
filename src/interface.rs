@@ -15,13 +15,21 @@ pub enum Color {
     Third,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Error {
+    OtherReadError,
+    RequestedPixelIsNotFound,
+    RequestedU8IsNotFound,
+    HorizontalOverflowIsDetected,
+}
+
 pub trait ImageProvider: Debug {
     fn get_size(&self) -> Size;
-    fn next(&mut self) -> Color;
+    fn next(&mut self) -> Result<Color, Error>;
 }
 
 #[cfg(feature = "byte_reader")]
 pub trait RawImageByteProvider: Debug {
     fn get_size(&self) -> Size;
-    fn next(&mut self) -> u8;
+    fn next(&mut self) -> Result<u8, Error>;
 }

@@ -1,17 +1,14 @@
 use image::DynamicImage;
-use std::{fs::File, io::Read};
 use image_provider::{
     display::{imagebuffer::CreateImageBuffer, DisplayableMap, DisplayableMapBuilder},
     filter::{
         layered::LayeredImageBuilder,
         remap::{RemapBuilder, RemappedImage},
     },
-    interface::{Color, Size, RawImageByteProvider},
-    source::{
-        rect::Rect,
-        byte_reader::RawByteSource,
-    },
+    interface::{Color, Error, RawImageByteProvider, Size},
+    source::{byte_reader::RawByteSource, rect::Rect},
 };
+use std::{fs::File, io::Read};
 
 #[derive(Debug)]
 struct FileReader {
@@ -25,14 +22,23 @@ impl RawImageByteProvider for FileReader {
     fn get_size(&self) -> Size {
         self.size
     }
-    fn next(&mut self) -> u8 {
+    fn next(&mut self) -> Result<u8, Error> {
         self.ptr += 1;
+
         if self.ptr == 32 {
-            println!("HERE");
-            self.file.read(&mut self.buffer).unwrap();
+            let readed = self
+                .file
+                .read(&mut self.buffer)
+                .map_err(|_| Error::OtherReadError)?;
+
+            if readed == 0 {
+                return Err(Error::RequestedU8IsNotFound);
+            }
+
             self.ptr = 0;
         }
-        self.buffer[self.ptr]
+
+        Ok(self.buffer[self.ptr])
     }
 }
 
@@ -54,15 +60,13 @@ fn main() {
         buffer: [0; 32],
     };
 
-    let file = RawByteSource::new(provider, |p| {
-        loop {
-            match p.next() {
-                b'B' => return Color::Black,
-                b'W' => return Color::White,
-                b'T' => return Color::Third,
-                b' ' => return Color::Transpalent,
-                _ => continue,
-            }
+    let file = RawByteSource::new(provider, |p| loop {
+        match p.next()? {
+            b'B' => return Ok(Color::Black),
+            b'W' => return Ok(Color::White),
+            b'T' => return Ok(Color::Third),
+            b' ' => return Ok(Color::Transpalent),
+            _ => continue,
         }
     });
 
@@ -81,7 +85,7 @@ fn main() {
     // layered.display_to_stdout(display_map);
 
     let display_map: DisplayableMap<image::Rgba<u8>> = DisplayableMapBuilder::default().build();
-    let buf = layered.create_imagebuffer(display_map);
+    let buf = layered.create_imagebuffer(display_map).unwrap();
 
     let dynamic = DynamicImage::from(buf);
     dynamic

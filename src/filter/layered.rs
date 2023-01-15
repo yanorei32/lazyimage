@@ -1,4 +1,4 @@
-use crate::interface::{Color, ImageProvider, Size};
+use crate::interface::{Color, Error, ImageProvider, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
 
@@ -23,11 +23,6 @@ pub struct LayeredImageBuilder {
     layers: Vec<Layer>,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum Error {
-    HorizontalOverflow,
-}
-
 impl LayeredImageBuilder {
     #[must_use]
     pub fn new(size: Size) -> Self {
@@ -42,7 +37,7 @@ impl LayeredImageBuilder {
     /// Will return `Err` if `image` overflowed horizontal.
     pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error> {
         if pos.w + image.get_size().w > self.size.w {
-            return Err(Error::HorizontalOverflow);
+            return Err(Error::HorizontalOverflowIsDetected);
         }
 
         self.layers.push(Layer { image, pos });
@@ -67,7 +62,7 @@ impl ImageProvider for LayeredImage {
         self.size
     }
 
-    fn next(&mut self) -> Color {
+    fn next(&mut self) -> Result<Color, Error> {
         let mut c = self.current_pos;
 
         let mut color = Color::Transpalent;
@@ -89,7 +84,7 @@ impl ImageProvider for LayeredImage {
                 continue;
             }
 
-            let c = layer.image.next();
+            let c = layer.image.next()?;
 
             if c != Color::Transpalent {
                 color = c;
@@ -105,6 +100,6 @@ impl ImageProvider for LayeredImage {
 
         self.current_pos = c;
 
-        color
+        Ok(color)
     }
 }

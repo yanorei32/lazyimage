@@ -1,6 +1,6 @@
 use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
-use crate::interface::{Color, ImageProvider};
+use crate::interface::{Color, Error, ImageProvider};
 use enum_map::enum_map;
 use image::ImageBuffer;
 
@@ -34,7 +34,7 @@ pub trait CreateImageBuffer<T> {
     fn create_imagebuffer<P: image::Pixel>(
         &mut self,
         map: DisplayableMap<P>,
-    ) -> ImageBuffer<P, std::vec::Vec<P::Subpixel>>;
+    ) -> Result<ImageBuffer<P, std::vec::Vec<P::Subpixel>>, Error>;
 }
 
 impl<T> CreateImageBuffer<T> for T
@@ -44,17 +44,17 @@ where
     fn create_imagebuffer<P: image::Pixel>(
         &mut self,
         map: DisplayableMap<P>,
-    ) -> ImageBuffer<P, std::vec::Vec<P::Subpixel>> {
+    ) -> Result<ImageBuffer<P, std::vec::Vec<P::Subpixel>>, Error> {
         let s = self.get_size();
 
         let mut buf = ImageBuffer::new(s.w.into(), s.h.into());
 
         for y in 0..s.h {
             for x in 0..s.w {
-                buf.put_pixel(x.into(), y.into(), map[self.next()]);
+                buf.put_pixel(x.into(), y.into(), map[self.next()?]);
             }
         }
 
-        buf
+        Ok(buf)
     }
 }

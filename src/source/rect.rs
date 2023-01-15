@@ -1,4 +1,4 @@
-use crate::interface::{Color, ImageProvider, Size};
+use crate::interface::{Color, ImageProvider, Size, Error};
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -19,7 +19,7 @@ impl ImageProvider for Rect {
         self.size
     }
 
-    fn next(&mut self) -> Color {
-        self.color
+    fn next(&mut self) -> Result<Color, Error> {
+        Ok(self.color)
     }
 }

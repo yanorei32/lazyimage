@@ -1,4 +1,4 @@
-use crate::interface::{RawImageByteProvider, Color, ImageProvider, Size};
+use crate::interface::{RawImageByteProvider, Color, ImageProvider, Size, Error};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -9,7 +9,7 @@ pub struct RawByteSource<T, F> {
     processor: F,
 }
 
-impl<T: RawImageByteProvider, F: Fn(&mut T) -> Color> RawByteSource<T, F> {
+impl<T: RawImageByteProvider, F: Fn(&mut T) -> Result<Color, Error>> RawByteSource<T, F> {
     pub fn new(provider: T, processor: F) -> Self {
         Self {
             provider,
@@ -18,8 +18,8 @@ impl<T: RawImageByteProvider, F: Fn(&mut T) -> Color> RawByteSource<T, F> {
     }
 }
 
-impl<T: RawImageByteProvider, F: Fn(&mut T) -> Color> ImageProvider for RawByteSource<T, F> {
-    fn next(&mut self) -> Color {
+impl<T: RawImageByteProvider, F: Fn(&mut T) -> Result<Color, Error>> ImageProvider for RawByteSource<T, F> {
+    fn next(&mut self) -> Result<Color, Error> {
         (self.processor)(&mut self.provider)
     }
 
