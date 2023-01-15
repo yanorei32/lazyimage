@@ -8,6 +8,12 @@ extern crate std;
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+#[cfg(feature = "std")]
+pub mod debug_display;
+
+#[cfg(feature = "image_display")]
+pub mod image_display;
+
 pub mod filled;
 pub mod image;
 pub mod layered;

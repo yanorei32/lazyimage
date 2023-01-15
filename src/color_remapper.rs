@@ -4,18 +4,18 @@ use enum_map::EnumMap;
 use crate::image::{Color, ImageProvider, Size};
 
 type Remap = EnumMap<Color, Color>;
+
+#[derive(Debug)]
 pub struct RemapBuilder(Remap);
 
 impl Default for RemapBuilder {
     fn default() -> Self {
-        Self (
-            enum_map! {
-                Color::Red => Color::Red,
-                Color::White => Color::White,
-                Color::Black => Color::Black,
-                Color::Transpalent => Color::Transpalent,
-            }
-        )
+        Self(enum_map! {
+            Color::Third => Color::Third,
+            Color::White => Color::White,
+            Color::Black => Color::Black,
+            Color::Transpalent => Color::Transpalent,
+        })
     }
 }
 
@@ -51,7 +51,7 @@ where
 {
     #[must_use]
     pub fn new(image: T, remap: Remap) -> Self {
-       Self { image, remap }
+        Self { image, remap }
     }
 }
 
@@ -64,6 +64,6 @@ where
     }
 
     fn next(&mut self) -> Color {
-        self.remap[Color::Black]
+        self.remap[self.image.next()]
     }
 }

@@ -7,9 +7,12 @@ edition = "2021"
 
 [dependencies]
 enum-map = { version = "2.4.2" }
+image = { version = "0.24.5", optional = true }
 
 [features]
-default = ["std"]
+default = ["std", "image_display"]
+
+image_display = ["image"]
 
 alloc = []
 std = ["alloc"]

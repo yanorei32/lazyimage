@@ -1,22 +1,24 @@
 use crate::image::{Color, ImageProvider, Size};
 use alloc::{boxed::Box, vec::Vec};
+use core::fmt::Debug;
 
+#[derive(Debug)]
 struct Layer {
     image: Box<dyn ImageProvider>,
     pos: Size,
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug)]
 pub struct LayeredImage {
     current_pos: Size,
-    background: Color,
     size: Size,
     layers: Vec<Layer>,
 }
 
 #[allow(clippy::module_name_repetitions)]
+#[derive(Debug)]
 pub struct LayeredImageBuilder {
-    background: Color,
     size: Size,
     layers: Vec<Layer>,
 }
@@ -31,7 +33,6 @@ impl LayeredImageBuilder {
     pub fn new(size: Size) -> Self {
         Self {
             size,
-            background: Color::Black,
             layers: Vec::new(),
         }
     }
@@ -39,7 +40,7 @@ impl LayeredImageBuilder {
     /// # Errors
     ///
     /// Will return `Err` if `image` overflowed horizontal.
-    pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error> {
+    pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error>  {
         if pos.w + image.get_size().w > self.size.w {
             return Err(Error::HorizontalOverflow);
         }
@@ -50,18 +51,11 @@ impl LayeredImageBuilder {
     }
 
     #[must_use]
-    pub fn set_bg(mut self, color: Color) -> Self {
-        self.background = color;
-        self
-    }
-
-    #[must_use]
     pub fn build(self) -> LayeredImage {
         LayeredImage {
             current_pos: Size { w: 0, h: 0 },
             size: self.size,
             layers: self.layers,
-            background: self.background,
         }
     }
 }
@@ -76,7 +70,7 @@ impl ImageProvider for LayeredImage {
     fn next(&mut self) -> Color {
         let mut c = self.current_pos;
 
-        let mut color = self.background;
+        let mut color = Color::Transpalent;
 
         for layer in &mut self.layers {
             if layer.pos.h > c.h {
