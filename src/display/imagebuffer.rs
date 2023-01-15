@@ -21,7 +21,7 @@ impl Default for DisplayableMapBuilder<image::Rgb<u8>> {
     fn default() -> Self {
         Self {
             map: enum_map! {
-                Color::Transpalent => image::Rgb([255, 0, 255] as [u8; 3]),
+                Color::Transpalent => image::Rgb([255, 0, 255]),
                 Color::White => image::Rgb([192, 192, 192]),
                 Color::Black => image::Rgb([32, 32, 32]),
                 Color::Third => image::Rgb([192, 32, 32]),
