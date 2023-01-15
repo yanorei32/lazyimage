@@ -1,0 +1,43 @@
+use std::string::{String, ToString};
+
+use enum_map::enum_map;
+use crate::display::DisplayableMap;
+use crate::display::DisplayableMapBuilder;
+use crate::image::{Color, ImageProvider};
+
+
+impl Default for DisplayableMapBuilder<String> {
+    fn default() -> Self {
+        Self {
+            map: enum_map! {
+                Color::White => "##".to_string(),
+                Color::Third => "**".to_string(),
+                Color::Black => "..".to_string(),
+                Color::Transpalent => "TT".to_string(),
+            },
+        }
+    }
+}
+pub trait StdoutDisplay<T> {
+    fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>);
+}
+
+impl<T> StdoutDisplay<T> for T
+where
+    T: ImageProvider,
+{
+    fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>) {
+        let s = self.get_size();
+
+        std::println!("{}x{}", s.w, s.h);
+
+        for _ in 0..s.h {
+            for _ in 0..s.w {
+                let stdout = &map[self.next()];
+                std::print!("{stdout}");
+            }
+
+            std::println!();
+        }
+    }
+}
