@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 enum-map = { version = "2.4.2" }
-image = { version = "0.24.5", optional = true, default-features = false}
+image = { version = "0.24.5", optional = true, default-features = false }
 
 [features]
 default = ["std", "image_display"]
