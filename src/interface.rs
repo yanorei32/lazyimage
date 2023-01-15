@@ -15,8 +15,13 @@ pub enum Color {
     Third,
 }
 
-#[allow(clippy::module_name_repetitions)]
 pub trait ImageProvider: Debug {
     fn get_size(&self) -> Size;
     fn next(&mut self) -> Color;
+}
+
+#[cfg(feature = "byte_reader")]
+pub trait RawImageByteProvider: Debug {
+    fn get_size(&self) -> Size;
+    fn next(&mut self) -> u8;
 }

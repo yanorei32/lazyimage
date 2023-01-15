@@ -8,11 +8,14 @@ edition = "2021"
 [dependencies]
 enum-map = { version = "2.4.2" }
 image = { version = "0.24.5", optional = true, default-features = false }
+derivative = { version = "2.2.0", optional = true, features = ["use_core"] }
 
 [features]
-default = ["std", "imagebuffer_display"]
+default = ["std", "imagebuffer_display", "raw_reader"]
 
+byte_reader = []
 imagebuffer_display = ["image", "image/png"]
+raw_reader = ["byte_reader", "derivative"]
 
 alloc = []
 std = ["alloc"]
