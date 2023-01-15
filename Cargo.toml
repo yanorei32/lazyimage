@@ -10,9 +10,9 @@ enum-map = { version = "2.4.2" }
 image = { version = "0.24.5", optional = true, default-features = false }
 
 [features]
-default = ["std", "image_display"]
+default = ["std", "imagebuffer_display"]
 
-image_display = ["image"]
+imagebuffer_display = ["image", "image/png"]
 
 alloc = []
 std = ["alloc"]

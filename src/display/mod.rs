@@ -1,8 +1,8 @@
-#[cfg(feature = "image_display")]
+#[cfg(feature = "imagebuffer_display")]
 pub mod imagebuffer;
 
 #[cfg(feature = "std")]
-pub mod print;
+pub mod stdout;
 
 use crate::image::Color;
 use enum_map::EnumMap;

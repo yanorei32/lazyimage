@@ -18,11 +18,11 @@ impl Default for DisplayableMapBuilder<String> {
         }
     }
 }
-pub trait StdoutDisplay<T> {
+pub trait Stdout<T> {
     fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>);
 }
 
-impl<T> StdoutDisplay<T> for T
+impl<T> Stdout<T> for T
 where
     T: ImageProvider,
 {

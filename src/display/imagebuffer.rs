@@ -9,10 +9,10 @@ impl Default for DisplayableMapBuilder<image::Rgba<u8>> {
     fn default() -> Self {
         Self {
             map: enum_map! {
-                Color::Transpalent => image::Rgba([0, 0, 0, 1]),
-                Color::White => image::Rgba([192, 192, 192, 0]),
-                Color::Black => image::Rgba([32, 32, 32, 0]),
-                Color::Third => image::Rgba([192, 32, 32, 0]),
+                Color::Transpalent => image::Rgba([0, 0, 0, 0]),
+                Color::White => image::Rgba([192, 192, 192, 255]),
+                Color::Black => image::Rgba([32, 32, 32, 255]),
+                Color::Third => image::Rgba([192, 32, 32, 255]),
             },
         }
     }
@@ -31,14 +31,14 @@ impl Default for DisplayableMapBuilder<image::Rgb<u8>> {
     }
 }
 
-pub trait ImageBufferDisplay<T> {
+pub trait CreateImageBuffer<T> {
     fn create_imagebuffer<P: image::Pixel>(
         &mut self,
         map: DisplayableMap<P>,
     ) -> ImageBuffer<P, std::vec::Vec<P::Subpixel>>;
 }
 
-impl<T> ImageBufferDisplay<T> for T
+impl<T> CreateImageBuffer<T> for T
 where
     T: ImageProvider,
 {

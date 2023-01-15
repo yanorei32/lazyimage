@@ -5,7 +5,9 @@ use image_provider::filled::FilledImage;
 
 use image_provider::image::{Color, Size};
 
-use image_provider::display::{imagebuffer::ImageBufferDisplay, print::StdoutDisplay, DisplayableMapBuilder, DisplayableMap};
+// use image_provider::display::{imagebuffer::CreateImageBuffer, stdout::Print, DisplayableMapBuilder, DisplayableMap};
+use image_provider::display::{imagebuffer::CreateImageBuffer, stdout::Stdout, DisplayableMapBuilder, DisplayableMap};
+// use image_provider::display::DisplayableMap
 use image_provider::layered::LayeredImageBuilder;
 
 // use image::{ImageBuffer};
@@ -36,14 +38,11 @@ fn main() {
     // layered.display_to_stdout(display_map);
 
     let display_map: DisplayableMap<image::Rgba<u8>> = DisplayableMapBuilder::default().build();
-
     let buf = layered.create_imagebuffer(display_map);
+
     let dynamic = DynamicImage::from(buf);
     dynamic
         .resize(160, 90, image::imageops::FilterType::Nearest)
         .save("example.png")
         .unwrap();
-
-    // println!("{:?}", layered);
-    // layered.display_to_stdout(display_map);
 }
