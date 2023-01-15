@@ -8,10 +8,7 @@ extern crate std;
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-
 pub mod display;
-
-pub mod filled;
-pub mod image;
-pub mod layered;
+pub mod source;
+pub mod interface;
 pub mod filter;

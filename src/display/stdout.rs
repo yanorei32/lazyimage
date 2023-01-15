@@ -3,8 +3,7 @@ use std::string::{String, ToString};
 use enum_map::enum_map;
 use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
-use crate::image::{Color, ImageProvider};
-
+use crate::interface::{Color, ImageProvider};
 
 impl Default for DisplayableMapBuilder<String> {
     fn default() -> Self {
@@ -18,6 +17,7 @@ impl Default for DisplayableMapBuilder<String> {
         }
     }
 }
+
 pub trait Stdout<T> {
     fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>);
 }

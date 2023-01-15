@@ -1,7 +1,7 @@
 use enum_map::enum_map;
 use enum_map::EnumMap;
 
-use crate::image::{Color, ImageProvider, Size};
+use crate::interface::{Color, ImageProvider, Size};
 
 type Remap = EnumMap<Color, Color>;
 

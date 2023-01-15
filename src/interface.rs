@@ -1,4 +1,5 @@
 use enum_map::Enum;
+use core::fmt::Debug;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Size {
@@ -15,7 +16,8 @@ pub enum Color {
 }
 
 #[allow(clippy::module_name_repetitions)]
-pub trait ImageProvider : core::fmt::Debug {
+pub trait ImageProvider : Debug {
     fn get_size(&self) -> Size;
     fn next(&mut self) -> Color;
 }
+

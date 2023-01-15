@@ -1,21 +1,22 @@
 use image::DynamicImage;
-use image_provider::filter::{RemapBuilder, RemappedImage};
-
-use image_provider::filled::FilledImage;
-
-use image_provider::image::{Color, Size};
-
-// use image_provider::display::{imagebuffer::CreateImageBuffer, stdout::Print, DisplayableMapBuilder, DisplayableMap};
-use image_provider::display::{imagebuffer::CreateImageBuffer, stdout::Stdout, DisplayableMapBuilder, DisplayableMap};
-// use image_provider::display::DisplayableMap
-use image_provider::layered::LayeredImageBuilder;
-
-// use image::{ImageBuffer};
+use image_provider::{
+    filter::{
+        remap::{RemapBuilder, RemappedImage},
+        layered::{LayeredImageBuilder},
+    },
+    source::rect::Rect,
+    interface::{Color, Size},
+    display::{
+        imagebuffer::CreateImageBuffer,
+        DisplayableMapBuilder,
+        DisplayableMap
+    },
+};
 
 fn main() {
-    let bg = FilledImage::new(Size { w: 16, h: 9 }, Color::Third);
-    let bg2 = FilledImage::new(Size { w: 12, h: 9 }, Color::White);
-    let bg3 = FilledImage::new(Size { w: 2, h: 2 }, Color::Black);
+    let bg = Rect::new(Size { w: 16, h: 9 }, Color::Third);
+    let bg2 = Rect::new(Size { w: 12, h: 9 }, Color::White);
+    let bg3 = Rect::new(Size { w: 2, h: 2 }, Color::Black);
 
     let remap = RemapBuilder::default()
         .set_map(Color::Black, Color::Third)

@@ -4,7 +4,7 @@ pub mod imagebuffer;
 #[cfg(feature = "std")]
 pub mod stdout;
 
-use crate::image::Color;
+use crate::interface::Color;
 use enum_map::EnumMap;
 
 pub type DisplayableMap<T> = EnumMap<Color, T>;

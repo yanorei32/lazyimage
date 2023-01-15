@@ -1,6 +1,6 @@
-use crate::image::{Color, ImageProvider, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
+use crate::interface::{Color, ImageProvider, Size};
 
 #[derive(Debug)]
 struct Layer {

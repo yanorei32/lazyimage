@@ -1,6 +1,6 @@
 use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
-use crate::image::{Color, ImageProvider};
+use crate::interface::{Color, ImageProvider};
 
 use enum_map::enum_map;
 use image::ImageBuffer;
