@@ -1,16 +1,12 @@
 use image::DynamicImage;
 use image_provider::{
+    display::{imagebuffer::CreateImageBuffer, DisplayableMap, DisplayableMapBuilder},
     filter::{
+        layered::LayeredImageBuilder,
         remap::{RemapBuilder, RemappedImage},
-        layered::{LayeredImageBuilder},
     },
-    source::rect::Rect,
     interface::{Color, Size},
-    display::{
-        imagebuffer::CreateImageBuffer,
-        DisplayableMapBuilder,
-        DisplayableMap
-    },
+    source::rect::Rect,
 };
 
 fn main() {

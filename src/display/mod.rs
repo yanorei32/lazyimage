@@ -1,11 +1,11 @@
+use crate::interface::Color;
+use enum_map::EnumMap;
+
 #[cfg(feature = "imagebuffer_display")]
 pub mod imagebuffer;
 
 #[cfg(feature = "std")]
 pub mod stdout;
-
-use crate::interface::Color;
-use enum_map::EnumMap;
 
 pub type DisplayableMap<T> = EnumMap<Color, T>;
 

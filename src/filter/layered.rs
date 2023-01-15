@@ -1,6 +1,6 @@
+use crate::interface::{Color, ImageProvider, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
-use crate::interface::{Color, ImageProvider, Size};
 
 #[derive(Debug)]
 struct Layer {
@@ -40,7 +40,7 @@ impl LayeredImageBuilder {
     /// # Errors
     ///
     /// Will return `Err` if `image` overflowed horizontal.
-    pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error>  {
+    pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error> {
         if pos.w + image.get_size().w > self.size.w {
             return Err(Error::HorizontalOverflow);
         }

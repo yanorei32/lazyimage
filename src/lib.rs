@@ -9,6 +9,6 @@ extern crate std;
 extern crate alloc;
 
 pub mod display;
-pub mod source;
-pub mod interface;
 pub mod filter;
+pub mod interface;
+pub mod source;
