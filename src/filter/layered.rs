@@ -1,4 +1,4 @@
-use crate::interface::{Color, Error, ImageProvider, Size};
+use crate::interface::{Area, Color, Error, ImageProvider, Size};
 
 #[cfg(feature = "alloc")]
 pub(crate) extern crate alloc;
@@ -9,7 +9,7 @@ use core::fmt::Debug;
 #[derive(Debug)]
 struct Layer {
     image: Box<dyn ImageProvider>,
-    pos: Size,
+    area: Area,
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -40,11 +40,16 @@ impl LayeredImageBuilder {
     ///
     /// Will return `Err` if `image` overflowed horizontal.
     pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error> {
-        if pos.w + image.get_size().w > self.size.w {
+        let size = image.get_size();
+
+        if pos.w + size.w > self.size.w {
             return Err(Error::HorizontalOverflowIsDetected);
         }
 
-        self.layers.push(Layer { image, pos });
+        self.layers.push(Layer {
+            image,
+            area: Area::from_pos_size(pos, size),
+        });
 
         Ok(self)
     }
@@ -72,19 +77,7 @@ impl ImageProvider for LayeredImage {
         let mut color = Color::Transpalent;
 
         for layer in &mut self.layers {
-            if layer.pos.h > c.h {
-                continue;
-            }
-
-            if c.h >= layer.pos.h + layer.image.get_size().h {
-                continue;
-            }
-
-            if layer.pos.w > c.w {
-                continue;
-            }
-
-            if c.w >= layer.pos.w + layer.image.get_size().w {
+            if !layer.area.contains(c) {
                 continue;
             }
 
@@ -92,7 +85,7 @@ impl ImageProvider for LayeredImage {
 
             if c != Color::Transpalent {
                 color = c;
-            };
+            }
         }
 
         if c.w == self.size.w - 1 {

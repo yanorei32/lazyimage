@@ -77,7 +77,7 @@ fn main() {
         .unwrap()
         .add_layer(Box::new(bg3), Size { w: 3, h: 3 })
         .unwrap()
-        .add_layer(Box::new(file), Size { w: 0, h: 4 })
+        .add_layer(Box::new(file), Size { w: 11, h: 4 })
         .unwrap()
         .build();
 
