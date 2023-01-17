@@ -28,7 +28,7 @@ pub trait ImageProvider: Debug {
     fn next(&mut self) -> Result<Color, Error>;
 }
 
-#[cfg(feature = "byte_reader")]
+#[cfg(feature = "reader")]
 pub trait RawImageByteProvider: Debug {
     fn get_size(&self) -> Size;
     fn next(&mut self) -> Result<u8, Error>;

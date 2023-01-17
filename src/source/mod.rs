@@ -1,4 +1,4 @@
 pub mod rect;
 
-#[cfg(feature = "byte_reader")]
+#[cfg(feature = "reader")]
 pub mod byte_reader;

@@ -1,5 +1,9 @@
 use crate::interface::{Color, Error, ImageProvider, Size};
+
+#[cfg(feature = "alloc")]
+pub(crate) extern crate alloc;
 use alloc::{boxed::Box, vec::Vec};
+
 use core::fmt::Debug;
 
 #[derive(Debug)]

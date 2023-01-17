@@ -1,12 +1,13 @@
 #![no_std]
 #![warn(clippy::pedantic)]
-#![cfg_attr(not(feature = "alloc"), no_std)]
+
+//#![cfg_attr(not(feature = "alloc"), no_std)]
 
 #[cfg(feature = "std")]
-extern crate std;
+pub(crate) extern crate std;
 
 #[cfg(feature = "alloc")]
-extern crate alloc;
+pub(crate) extern crate alloc;
 
 pub mod display;
 pub mod filter;

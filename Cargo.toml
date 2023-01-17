@@ -11,11 +11,10 @@ image = { version = "0.24.5", optional = true, default-features = false }
 derivative = { version = "2.2.0", optional = true, features = ["use_core"] }
 
 [features]
-default = ["std", "imagebuffer_display", "raw_reader"]
+default = ["imagebuffer_display", "reader"]
 
-byte_reader = []
-imagebuffer_display = ["image", "image/png"]
-raw_reader = ["byte_reader", "derivative"]
+imagebuffer_display = ["std", "image", "image/png"]
+reader = ["derivative"]
 
 alloc = []
 std = ["alloc"]
