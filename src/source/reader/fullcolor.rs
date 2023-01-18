@@ -3,7 +3,7 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct MonochromeReader<P>
+pub struct FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {
@@ -12,7 +12,7 @@ where
     provider: P,
 }
 
-impl<P> MonochromeReader<P>
+impl<P> FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {
@@ -21,20 +21,23 @@ where
     }
 }
 
-impl<P> Iterator for MonochromeReader<P>
+impl<P> Iterator for FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {
     type Item = Color;
     fn next(&mut self) -> Option<Color> {
-        self.provider.next().map(|v| match v {
-            true => Color::Black,
-            false => Color::White,
+        let (f, l) = (self.provider.next()?, self.provider.next()?);
+        Some(match (f, l) {
+            (false, false) => Color::White,
+            (false, true) => Color::Black,
+            (true, false) => Color::Third,
+            (true, true) => Color::Transpalent,
         })
     }
 }
 
-impl<P> Image for MonochromeReader<P>
+impl<P> Image for FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {

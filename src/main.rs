@@ -9,9 +9,10 @@ use image_provider::{
         remap::{RemapBuilder, RemappedImage},
     },
     interface::{Color, Size},
-    reader::{ByteIter, BitIter},
+    reader::{BitIter, ByteIter},
     source::{
-        primitive::rect::Rect, reader::{monochrome::MonochromeReader, text::TextReader},
+        primitive::rect::Rect,
+        reader::{fullcolor::FullcolorReader, monochrome::MonochromeReader, text::TextReader},
     },
 };
 use std::{fs::File, io::Read};
@@ -43,6 +44,14 @@ fn main() {
     });
     let mono_src = MonochromeReader::new(Size { w: 2, h: 2 }, mono_iter);
 
+    let color = Rc::new(RefCell::new(File::open("example.fullcolor").unwrap()));
+    let color_clousure = Rc::clone(&color);
+    let color_iter: BitIter<_, 16> = BitIter::new(move |buf| {
+        let mut f = color_clousure.try_borrow_mut().unwrap();
+        Some(f.read(buf).ok()?)
+    });
+    let color_src = FullcolorReader::new(Size { w: 2, h: 2 }, color_iter);
+
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
         .add_layer(Box::new(bg), Size { w: 0, h: 0 })
         .unwrap()
@@ -53,6 +62,8 @@ fn main() {
         .add_layer(Box::new(txt_src), Size { w: 11, h: 4 })
         .unwrap()
         .add_layer(Box::new(mono_src), Size { w: 0, h: 0 })
+        .unwrap()
+        .add_layer(Box::new(color_src), Size { w: 3, h: 7 })
         .unwrap()
         .build();
 

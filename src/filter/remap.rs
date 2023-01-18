@@ -1,6 +1,6 @@
-use enum_map::{enum_map, EnumMap};
-use core::iter::Iterator;
 use crate::interface::{Color, Image, Size};
+use core::iter::Iterator;
+use enum_map::{enum_map, EnumMap};
 
 type Remap = EnumMap<Color, Color>;
 
