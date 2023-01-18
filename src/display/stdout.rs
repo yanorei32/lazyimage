@@ -37,14 +37,13 @@ where
         map: DisplayableMap<P>,
     ) -> Result<(), Error> {
         let s = self.size();
-
         println!("{}x{}", s.w, s.h);
 
         for _ in 0..s.h {
-            for _ in 0..s.w {
-                let stdout = &map[self.next().ok_or(Error::UnexpectedEOF)?];
-                print!("{stdout}");
-            }
+            self.take(s.w.into())
+                .into_iter()
+                .map(|v| &map[v])
+                .for_each(|v| print!("{v}"));
 
             println!();
         }

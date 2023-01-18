@@ -11,8 +11,7 @@ use image_provider::{
     interface::{Color, Size},
     reader::{ByteIter, BitIter},
     source::{
-        rect::Rect, simple_monochrome_reader::SimpleMonochromeReader,
-        simple_text_reader::SimpleTextReader,
+        primitive::Rect, reader::{MonochromeReader, TextReader},
     },
 };
 use std::{fs::File, io::Read};
@@ -34,7 +33,7 @@ fn main() {
         let mut f = txt_clousure.try_borrow_mut().unwrap();
         Some(f.read(buf).ok()?)
     });
-    let txt_src = SimpleTextReader::new(Size { w: 5, h: 5 }, txt_iter);
+    let txt_src = TextReader::new(Size { w: 5, h: 5 }, txt_iter);
 
     let mono = Rc::new(RefCell::new(File::open("example.monochrome").unwrap()));
     let mono_clousure = Rc::clone(&mono);
@@ -42,7 +41,7 @@ fn main() {
         let mut f = mono_clousure.try_borrow_mut().unwrap();
         Some(f.read(buf).ok()?)
     });
-    let mono_src = SimpleMonochromeReader::new(Size { w: 2, h: 2 }, mono_iter);
+    let mono_src = MonochromeReader::new(Size { w: 2, h: 2 }, mono_iter);
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
         .add_layer(Box::new(bg), Size { w: 0, h: 0 })

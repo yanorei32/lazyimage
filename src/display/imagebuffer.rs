@@ -46,19 +46,10 @@ where
         map: DisplayableMap<P>,
     ) -> Result<ImageBuffer<P, std::vec::Vec<P::Subpixel>>, Error> {
         let s = self.size();
-
         let mut buf = ImageBuffer::new(s.w.into(), s.h.into());
-
-        for y in 0..s.h {
-            for x in 0..s.w {
-                buf.put_pixel(
-                    x.into(),
-                    y.into(),
-                    map[self.next().ok_or(Error::UnexpectedEOF)?],
-                );
-            }
-        }
-
+        let mut pixels = self.map(|v| map[v]);
+        buf.pixels_mut()
+            .for_each(|v| *v = pixels.next().unwrap());
         Ok(buf)
     }
 }
