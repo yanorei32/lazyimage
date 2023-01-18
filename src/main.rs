@@ -11,7 +11,7 @@ use image_provider::{
     interface::{Color, Size},
     reader::{ByteIter, BitIter},
     source::{
-        primitive::Rect, reader::{MonochromeReader, TextReader},
+        primitive::rect::Rect, reader::{monochrome::MonochromeReader, text::TextReader},
     },
 };
 use std::{fs::File, io::Read};
