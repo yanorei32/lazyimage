@@ -1,11 +1,11 @@
-use crate::interface::{Area, Color, Error, ImageProvider, Size};
+use crate::interface::{Area, Color, Error, Image, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
 use core::iter::Iterator;
 
 #[derive(Debug)]
 struct Layer {
-    image: Box<dyn ImageProvider>,
+    image: Box<dyn Image>,
     area: Area,
 }
 
@@ -36,8 +36,8 @@ impl LayeredImageBuilder {
     /// # Errors
     ///
     /// Will return `Err` if `image` overflowed horizontal.
-    pub fn add_layer(mut self, image: Box<dyn ImageProvider>, pos: Size) -> Result<Self, Error> {
-        let size = image.get_size();
+    pub fn add_layer(mut self, image: Box<dyn Image>, pos: Size) -> Result<Self, Error> {
+        let size = image.size();
 
         if pos.w + size.w > self.size.w {
             return Err(Error::HorizontalOverflowIsDetected);
@@ -90,8 +90,8 @@ impl Iterator for LayeredImage {
     }
 }
 
-impl ImageProvider for LayeredImage {
-    fn get_size(&self) -> Size {
+impl Image for LayeredImage {
+    fn size(&self) -> Size {
         self.size
     }
 }

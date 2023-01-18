@@ -1,7 +1,7 @@
 use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
 use crate::interface::Error;
-use crate::interface::{Color, ImageProvider};
+use crate::interface::{Color, Image};
 use crate::std::{
     print, println,
     string::{String, ToString},
@@ -30,13 +30,13 @@ pub trait Stdout<T> {
 
 impl<T> Stdout<T> for T
 where
-    T: ImageProvider,
+    T: Image,
 {
     fn display_to_stdout<P: core::fmt::Display>(
         &mut self,
         map: DisplayableMap<P>,
     ) -> Result<(), Error> {
-        let s = self.get_size();
+        let s = self.size();
 
         println!("{}x{}", s.w, s.h);
 

@@ -1,6 +1,6 @@
 use enum_map::{enum_map, EnumMap};
 use core::iter::Iterator;
-use crate::interface::{Color, ImageProvider, Size};
+use crate::interface::{Color, Image, Size};
 
 type Remap = EnumMap<Color, Color>;
 
@@ -46,7 +46,7 @@ pub struct RemappedImage<T> {
 
 impl<T> RemappedImage<T>
 where
-    T: ImageProvider,
+    T: Image,
 {
     #[must_use]
     pub fn new(image: T, remap: Remap) -> Self {
@@ -54,18 +54,18 @@ where
     }
 }
 
-impl<T> ImageProvider for RemappedImage<T>
+impl<T> Image for RemappedImage<T>
 where
-    T: ImageProvider,
+    T: Image,
 {
-    fn get_size(&self) -> Size {
-        self.image.get_size()
+    fn size(&self) -> Size {
+        self.image.size()
     }
 }
 
 impl<T> Iterator for RemappedImage<T>
 where
-    T: ImageProvider,
+    T: Image,
 {
     type Item = Color;
 

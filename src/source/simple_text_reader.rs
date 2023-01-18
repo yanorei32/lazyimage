@@ -1,4 +1,4 @@
-use crate::interface::{Color, ImageProvider, Size};
+use crate::interface::{Color, Image, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -39,11 +39,11 @@ where
     }
 }
 
-impl<P> ImageProvider for SimpleTextReader<P>
+impl<P> Image for SimpleTextReader<P>
 where
     P: Iterator<Item = u8>,
 {
-    fn get_size(&self) -> Size {
+    fn size(&self) -> Size {
         self.size
     }
 }

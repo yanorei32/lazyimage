@@ -1,5 +1,4 @@
 extern crate alloc;
-
 use alloc::rc::Rc;
 use core::cell::RefCell;
 use image::DynamicImage;
@@ -65,7 +64,7 @@ fn main() {
 
     let display_map: DisplayableMap<image::Rgba<u8>> = DisplayableMapBuilder::default().build();
     let buf = layered.create_imagebuffer(display_map).unwrap();
-
+    //
     let dynamic = DynamicImage::from(buf);
     dynamic
         .resize(160, 90, image::imageops::FilterType::Nearest)

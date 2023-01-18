@@ -54,6 +54,6 @@ pub enum Error {
     UnexpectedEOF,
 }
 
-pub trait ImageProvider: Iterator<Item = Color> + Debug {
-    fn get_size(&self) -> Size;
+pub trait Image: Iterator<Item = Color> + Debug {
+    fn size(&self) -> Size;
 }
