@@ -4,7 +4,7 @@ use enum_map::EnumMap;
 #[cfg(feature = "imagebuffer_display")]
 pub mod imagebuffer;
 
-#[cfg(feature = "std")]
+#[cfg(feature = "stdout_display")]
 pub mod stdout;
 
 pub type DisplayableMap<T> = EnumMap<Color, T>;

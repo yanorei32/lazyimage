@@ -1,7 +1,5 @@
 use crate::interface::{Area, Color, Error, ImageProvider, Size};
 
-#[cfg(feature = "alloc")]
-pub(crate) extern crate alloc;
 use alloc::{boxed::Box, vec::Vec};
 
 use core::fmt::Debug;
@@ -81,10 +79,9 @@ impl ImageProvider for LayeredImage {
                 continue;
             }
 
-            let c = layer.image.next()?;
-
-            if c != Color::Transpalent {
-                color = c;
+            match layer.image.next()? {
+                Color::Transpalent => {}
+                opaque => color = opaque,
             }
         }
 

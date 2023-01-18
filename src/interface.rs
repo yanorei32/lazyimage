@@ -47,10 +47,10 @@ pub enum Color {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Error {
-    OtherReadError,
     RequestedPixelIsNotFound,
     RequestedU8IsNotFound,
     HorizontalOverflowIsDetected,
+    BufferProbingError,
 }
 
 pub trait ImageProvider: Debug {
@@ -58,8 +58,6 @@ pub trait ImageProvider: Debug {
     fn next(&mut self) -> Result<Color, Error>;
 }
 
-#[cfg(feature = "reader")]
-pub trait RawImageByteProvider: Debug {
-    fn get_size(&self) -> Size;
-    fn next(&mut self) -> Result<u8, Error>;
+pub trait BufferProber: Debug {
+    fn probe(&mut self) -> Result<(&[u8], usize), Error>;
 }

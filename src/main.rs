@@ -1,46 +1,47 @@
 use image::DynamicImage;
 use image_provider::{
+    buffer_prober::CallbackBufferProber,
     display::{imagebuffer::CreateImageBuffer, DisplayableMap, DisplayableMapBuilder},
     filter::{
         layered::LayeredImageBuilder,
         remap::{RemapBuilder, RemappedImage},
     },
-    interface::{Color, Error, RawImageByteProvider, Size},
-    source::{byte_reader::RawByteSource, rect::Rect},
+    interface::{BufferProber, Color, Error, Size},
+    source::{rect::Rect},
 };
 use std::{fs::File, io::Read};
 
-#[derive(Debug)]
-struct FileReader {
-    file: File,
-    size: Size,
-    buffer: [u8; 32],
-    ptr: usize,
-}
+// #[derive(Debug)]
+// struct FileReader {
+//     file: File,
+//     size: Size,
+//     buffer: [u8; 32],
+//     ptr: usize,
+// }
 
-impl RawImageByteProvider for FileReader {
-    fn get_size(&self) -> Size {
-        self.size
-    }
-    fn next(&mut self) -> Result<u8, Error> {
-        self.ptr += 1;
-
-        if self.ptr == 32 {
-            let readed = self
-                .file
-                .read(&mut self.buffer)
-                .map_err(|_| Error::OtherReadError)?;
-
-            if readed == 0 {
-                return Err(Error::RequestedU8IsNotFound);
-            }
-
-            self.ptr = 0;
-        }
-
-        Ok(self.buffer[self.ptr])
-    }
-}
+// impl RawImageByteProvider for FileReader {
+//     fn get_size(&self) -> Size {
+//         self.size
+//     }
+//     fn next(&mut self) -> Result<u8, Error> {
+//         self.ptr += 1;
+//
+//         if self.ptr == 32 {
+//             let readed = self
+//                 .file
+//                 .read(&mut self.buffer)
+//                 .map_err(|_| Error::OtherReadError)?;
+//
+//             if readed == 0 {
+//                 return Err(Error::RequestedU8IsNotFound);
+//             }
+//
+//             self.ptr = 0;
+//         }
+//
+//         Ok(self.buffer[self.ptr])
+//     }
+// }
 
 fn main() {
     let bg = Rect::new(Size { w: 16, h: 9 }, Color::Third);
@@ -53,22 +54,40 @@ fn main() {
 
     let bg3 = RemappedImage::new(bg3, remap);
 
-    let provider = FileReader {
-        file: File::open("bin").unwrap(),
-        size: Size { w: 5, h: 5 },
-        ptr: 31,
-        buffer: [0; 32],
-    };
+    let mut file = File::open("bin").unwrap();
 
-    let file = RawByteSource::new(provider, |p| loop {
-        match p.next()? {
-            b'B' => return Ok(Color::Black),
-            b'W' => return Ok(Color::White),
-            b'T' => return Ok(Color::Third),
-            b' ' => return Ok(Color::Transpalent),
-            _ => continue,
-        }
+    let mut controller: CallbackBufferProber<_, 13> = CallbackBufferProber::new(|buffer| {
+        let size = file
+            .read(buffer.as_mut_slice())
+            .map_err(|_| Error::BufferProbingError)?;
+
+        Ok(size)
     });
+
+    loop {
+        let buf = controller.probe().unwrap();
+        if buf.1 == 0 {
+            break;
+        }
+        println!("buf = {:?}", &buf.0[..buf.1]);
+    }
+
+    // let provider = FileReader {
+    //     file: File::open("bin").unwrap(),
+    //     size: Size { w: 5, h: 5 },
+    //     ptr: 31,
+    //     buffer: [0; 32],
+    // };
+
+    // let file = RawByteSource::new(provider, |p| loop {
+    //     match p.next()? {
+    //         b'B' => return Ok(Color::Black),
+    //         b'W' => return Ok(Color::White),
+    //         b'T' => return Ok(Color::Third),
+    //         b' ' => return Ok(Color::Transpalent),
+    //         _ => continue,
+    //     }
+    // });
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
         .add_layer(Box::new(bg), Size { w: 0, h: 0 })
@@ -77,8 +96,8 @@ fn main() {
         .unwrap()
         .add_layer(Box::new(bg3), Size { w: 3, h: 3 })
         .unwrap()
-        .add_layer(Box::new(file), Size { w: 11, h: 4 })
-        .unwrap()
+        // .add_layer(Box::new(file), Size { w: 11, h: 4 })
+        // .unwrap()
         .build();
 
     // let display_map: DisplayableMap<String> = DisplayableMapBuilder::default().build();

@@ -3,7 +3,7 @@ use crate::display::DisplayableMapBuilder;
 use crate::interface::Error;
 use crate::interface::{Color, ImageProvider};
 use enum_map::enum_map;
-use std::string::{String, ToString};
+use crate::std::string::{String, ToString};
 
 impl Default for DisplayableMapBuilder<String> {
     fn default() -> Self {
