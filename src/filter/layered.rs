@@ -65,18 +65,14 @@ impl Iterator for LayeredImage {
     type Item = Color;
 
     fn next(&mut self) -> Option<Color> {
-        let mut color = Color::Transpalent;
-
-        for layer in &mut self.layers {
-            if !layer.area.contains(self.current_pos) {
-                continue;
-            }
-
-            match layer.image.next()? {
-                Color::Transpalent => {}
-                opaque => color = opaque,
-            }
-        }
+        let color = self
+            .layers
+            .iter_mut()
+            .filter(|l| l.area.contains(self.current_pos))
+            .try_fold(Color::Transpalent, |base, l| match l.image.next()? {
+                Color::Transpalent => Some(base),
+                color => Some(color),
+            })?;
 
         self.current_pos = match self.current_pos {
             // if end of line
