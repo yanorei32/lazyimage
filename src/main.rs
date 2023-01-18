@@ -10,7 +10,7 @@ use image_provider::{
         remap::{RemapBuilder, RemappedImage},
     },
     interface::{Color, Error, Size},
-    source::{rect::Rect, simple_text_reader::SimpleTextReader},
+    source::{rect::Rect, simple_text_reader::SimpleTextReader, simple_monochrome_reader::SimpleMonochromeReader},
 };
 use std::{fs::File, io::Read};
 
@@ -25,15 +25,22 @@ fn main() {
 
     let bg3 = RemappedImage::new(bg3, remap);
 
-    let file = File::open("bin").unwrap();
-    let file = Rc::new(RefCell::new(file));
+    let txtfile = File::open("example.txt").unwrap();
+    let txtfile = Rc::new(RefCell::new(txtfile));
+    let txtfile_clousure = Rc::clone(&txtfile);
+    let txtfile_src: SimpleTextReader<_, 16> =
+        SimpleTextReader::new(Size { w: 5, h: 5 }, move |buf| {
+            let mut f = txtfile_clousure.try_borrow_mut().unwrap();
+            Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
+        });
 
-    let file_clousure = Rc::clone(&file);
-    let file_src: SimpleTextReader<_, 16> =
-        SimpleTextReader::new(Size { w: 5, h: 5 }, move |buffer| {
-            let mut file = file_clousure.try_borrow_mut().unwrap();
-            let size = file.read(buffer).map_err(|_| Error::BufferProbingError)?;
-            Ok(size)
+    let monofile = File::open("example.monochrome").unwrap();
+    let monofile = Rc::new(RefCell::new(monofile));
+    let monofile_clousure = Rc::clone(&monofile);
+    let monofile_src: SimpleMonochromeReader<_, 16> =
+        SimpleMonochromeReader::new(Size { w: 2, h: 2 }, move |buffer| {
+            let mut f = monofile_clousure.try_borrow_mut().unwrap();
+            Ok(f.read(buffer).map_err(|_| Error::BufferProbingError)?)
         });
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
@@ -43,7 +50,9 @@ fn main() {
         .unwrap()
         .add_layer(Box::new(bg3), Size { w: 3, h: 3 })
         .unwrap()
-        .add_layer(Box::new(file_src), Size { w: 11, h: 4 })
+        .add_layer(Box::new(txtfile_src), Size { w: 11, h: 4 })
+        .unwrap()
+        .add_layer(Box::new(monofile_src), Size { w: 0, h: 0 })
         .unwrap()
         .build();
 
