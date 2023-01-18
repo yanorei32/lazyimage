@@ -27,8 +27,7 @@ where
 {
     type Item = Color;
     fn next(&mut self) -> Option<Color> {
-        let (f, l) = (self.provider.next()?, self.provider.next()?);
-        Some(match (f, l) {
+        Some(match (self.provider.next()?, self.provider.next()?) {
             (false, false) => Color::White,
             (false, true) => Color::Black,
             (true, false) => Color::Third,
