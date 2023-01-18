@@ -1,4 +1,5 @@
-use crate::interface::{Error, ByteProvider, BitProvider};
+use crate::interface::{Error, BitProvider};
+use core::iter::Iterator;
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -28,16 +29,18 @@ where
     }
 }
 
-impl<P, const PROBE_SIZE: usize> ByteProvider for BufToByte<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> Iterator for BufToByte<P, PROBE_SIZE>
 where
     P: FnMut(&mut [u8]) -> Result<usize, Error>,
 {
-    fn next_byte(&mut self) -> Result<u8, Error> {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<u8> {
         if self.ptr == self.len {
-            self.len = (self.probe_fn)(&mut self.buffer)?;
+            self.len = (self.probe_fn)(&mut self.buffer).ok()?;
 
             if self.len == 0 {
-                return Err(Error::UnexpectedEOF);
+                return None
             }
 
             self.ptr = 0;
@@ -47,9 +50,10 @@ where
 
         self.ptr += 1;
 
-        Ok(byte)
+        Some(byte)
     }
 }
+
 
 #[derive(Derivative)]
 #[derivative(Debug)]

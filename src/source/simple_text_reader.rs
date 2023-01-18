@@ -1,19 +1,20 @@
-use crate::interface::{ByteProvider, Color, Error, ImageProvider, Size};
+use crate::interface::{Color, Error, ImageProvider, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct SimpleTextReader<P>
 where
-    P: ByteProvider,
+    P: Iterator<Item = u8>,
 {
     size: Size,
+    #[derivative(Debug = "ignore")]
     provider: P,
 }
 
 impl<P> SimpleTextReader<P>
 where
-    P: ByteProvider,
+    P: Iterator<Item = u8>,
 {
     pub fn new(size: Size, provider: P) -> Self {
         Self { size, provider }
@@ -22,7 +23,7 @@ where
 
 impl<P> ImageProvider for SimpleTextReader<P>
 where
-    P: ByteProvider,
+    P: Iterator<Item = u8>,
 {
     fn get_size(&self) -> Size {
         self.size
@@ -30,12 +31,13 @@ where
 
     fn next(&mut self) -> Result<Color, Error> {
         loop {
-            match self.provider.next_byte()? {
-                b'B' => return Ok(Color::Black),
-                b'W' => return Ok(Color::White),
-                b'T' => return Ok(Color::Third),
-                b' ' => return Ok(Color::Transpalent),
-                _ => continue,
+            match self.provider.next() {
+                Some(b'B') => return Ok(Color::Black),
+                Some(b'W') => return Ok(Color::White),
+                Some(b'T') => return Ok(Color::Third),
+                Some(b' ') => return Ok(Color::Transpalent),
+                Some(_) => continue,
+                None => return Err(Error::UnexpectedEOF),
             }
         }
     }
