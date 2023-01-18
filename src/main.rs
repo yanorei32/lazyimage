@@ -1,8 +1,10 @@
+extern crate alloc;
+
+use alloc::rc::Rc;
+use core::cell::RefCell;
 use image::DynamicImage;
 use image_provider::{
-    display::{
-        imagebuffer::CreateImageBuffer, DisplayableMap, DisplayableMapBuilder,
-    },
+    display::{imagebuffer::CreateImageBuffer, DisplayableMap, DisplayableMapBuilder},
     filter::{
         layered::LayeredImageBuilder,
         remap::{RemapBuilder, RemappedImage},
@@ -10,12 +12,6 @@ use image_provider::{
     interface::{Color, Error, Size},
     source::{rect::Rect, simple_text_reader::SimpleTextReader},
 };
-
-extern crate alloc;
-use alloc::rc::Rc;
-
-use core::cell::RefCell;
-
 use std::{fs::File, io::Read};
 
 fn main() {
