@@ -10,7 +10,11 @@ use image_provider::{
         remap::{RemapBuilder, RemappedImage},
     },
     interface::{Color, Error, Size},
-    source::{rect::Rect, simple_text_reader::SimpleTextReader, simple_monochrome_reader::SimpleMonochromeReader},
+    reader::BufToByte,
+    source::{
+        rect::Rect, simple_monochrome_reader::SimpleMonochromeReader,
+        simple_text_reader::SimpleTextReader,
+    },
 };
 use std::{fs::File, io::Read};
 
@@ -28,11 +32,11 @@ fn main() {
     let txtfile = File::open("example.txt").unwrap();
     let txtfile = Rc::new(RefCell::new(txtfile));
     let txtfile_clousure = Rc::clone(&txtfile);
-    let txtfile_src: SimpleTextReader<_, 16> =
-        SimpleTextReader::new(Size { w: 5, h: 5 }, move |buf| {
-            let mut f = txtfile_clousure.try_borrow_mut().unwrap();
-            Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
-        });
+    let txtfile_byteprov: BufToByte<_, 16> = BufToByte::new(move |buf| {
+        let mut f = txtfile_clousure.try_borrow_mut().unwrap();
+        Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
+    });
+    let txtfile_src = SimpleTextReader::new(Size { w: 5, h: 5 }, txtfile_byteprov);
 
     let monofile = File::open("example.monochrome").unwrap();
     let monofile = Rc::new(RefCell::new(monofile));

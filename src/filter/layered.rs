@@ -84,6 +84,7 @@ impl ImageProvider for LayeredImage {
         self.current_pos = match self.current_pos {
             // if end of line
             p if p.w == self.size.w - 1 => Size { w: 0, h: p.h + 1 },
+
             // otherwise
             p => Size { w: p.w + 1, h: p.h },
         };

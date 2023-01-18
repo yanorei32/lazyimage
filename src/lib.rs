@@ -5,6 +5,7 @@ pub mod display;
 pub mod filter;
 pub mod interface;
 pub mod source;
+pub mod reader;
 
 pub extern crate alloc;
 

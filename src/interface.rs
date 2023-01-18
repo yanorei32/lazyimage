@@ -58,3 +58,11 @@ pub trait ImageProvider: Debug {
     fn get_size(&self) -> Size;
     fn next(&mut self) -> Result<Color, Error>;
 }
+
+pub trait ByteProvider: Debug {
+    fn next_byte(&mut self) -> Result<u8, Error>;
+}
+
+pub trait BitProvider: Debug {
+    fn next_bit(&mut self) -> Result<bool, Error>;
+}
