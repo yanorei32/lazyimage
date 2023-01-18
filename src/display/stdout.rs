@@ -2,7 +2,10 @@ use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
 use crate::interface::Error;
 use crate::interface::{Color, ImageProvider};
-use crate::std::{string::{String, ToString}, println, print};
+use crate::std::{
+    print, println,
+    string::{String, ToString},
+};
 use enum_map::enum_map;
 
 impl Default for DisplayableMapBuilder<String> {
