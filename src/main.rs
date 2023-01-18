@@ -9,7 +9,7 @@ use image_provider::{
         layered::LayeredImageBuilder,
         remap::{RemapBuilder, RemappedImage},
     },
-    interface::{Color, Error, Size},
+    interface::{Color, Size},
     reader::{BufToByte, BufToBit},
     source::{
         rect::Rect, simple_monochrome_reader::SimpleMonochromeReader,
@@ -34,7 +34,7 @@ fn main() {
     let txtfile_clousure = Rc::clone(&txtfile);
     let txtfile_byteprov: BufToByte<_, 16> = BufToByte::new(move |buf| {
         let mut f = txtfile_clousure.try_borrow_mut().unwrap();
-        Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
+        Some(f.read(buf).ok()?)
     });
     let txtfile_src = SimpleTextReader::new(Size { w: 5, h: 5 }, txtfile_byteprov);
 
@@ -43,7 +43,7 @@ fn main() {
     let monofile_clousure = Rc::clone(&monofile);
     let monofile_bitprov: BufToBit<_, 16> = BufToBit::new(move |buf| {
         let mut f = monofile_clousure.try_borrow_mut().unwrap();
-        Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
+        Some(f.read(buf).ok()?)
     });
     let monofile_src = SimpleMonochromeReader::new(Size { w: 2, h: 2 }, monofile_bitprov);
 

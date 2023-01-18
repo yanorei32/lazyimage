@@ -1,4 +1,3 @@
-use crate::interface::{Error, BitProvider};
 use core::iter::Iterator;
 use derivative::Derivative;
 
@@ -6,7 +5,7 @@ use derivative::Derivative;
 #[derivative(Debug)]
 pub struct BufToByte<P, const PROBE_SIZE: usize>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
     #[derivative(Debug = "ignore")]
     probe_fn: P,
@@ -17,7 +16,7 @@ where
 
 impl<P, const PROBE_SIZE: usize> BufToByte<P, PROBE_SIZE>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
     pub fn new(probe_fn: P) -> Self {
         Self {
@@ -31,16 +30,16 @@ where
 
 impl<P, const PROBE_SIZE: usize> Iterator for BufToByte<P, PROBE_SIZE>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
     type Item = u8;
 
     fn next(&mut self) -> Option<u8> {
         if self.ptr == self.len {
-            self.len = (self.probe_fn)(&mut self.buffer).ok()?;
-
-            if self.len == 0 {
-                return None
+            match (self.probe_fn)(&mut self.buffer) {
+                None => return None,
+                Some(l) if l == 0 => return None,
+                Some(l) => self.len = l,
             }
 
             self.ptr = 0;
@@ -54,12 +53,11 @@ where
     }
 }
 
-
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct BufToBit<P, const PROBE_SIZE: usize>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
     #[derivative(Debug = "ignore")]
     probe_fn: P,
@@ -70,7 +68,7 @@ where
 
 impl<P, const PROBE_SIZE: usize> BufToBit<P, PROBE_SIZE>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
     pub fn new(probe_fn: P) -> Self {
         Self {
@@ -82,16 +80,18 @@ where
     }
 }
 
-impl<P, const PROBE_SIZE: usize> BitProvider for BufToBit<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> Iterator for BufToBit<P, PROBE_SIZE>
 where
-    P: FnMut(&mut [u8]) -> Result<usize, Error>,
+    P: FnMut(&mut [u8]) -> Option<usize>,
 {
-    fn next_bit(&mut self) -> Result<bool, Error> {
-        if self.bitptr * 8 == self.len {
-            self.len = (self.probe_fn)(&mut self.buffer)?;
+    type Item = bool;
 
-            if self.len == 0 {
-                return Err(Error::UnexpectedEOF);
+    fn next(&mut self) -> Option<bool> {
+        if self.bitptr * 8 == self.len {
+            match (self.probe_fn)(&mut self.buffer) {
+                None => return None,
+                Some(l) if l == 0 => return None,
+                Some(l) => self.len = l,
             }
 
             self.bitptr = 0;
@@ -103,6 +103,6 @@ where
 
         self.bitptr += 1;
 
-        Ok(bit)
+        Some(bit)
     }
 }
