@@ -10,7 +10,7 @@ use image_provider::{
         remap::{RemapBuilder, RemappedImage},
     },
     interface::{Color, Error, Size},
-    reader::BufToByte,
+    reader::{BufToByte, BufToBit},
     source::{
         rect::Rect, simple_monochrome_reader::SimpleMonochromeReader,
         simple_text_reader::SimpleTextReader,
@@ -41,11 +41,11 @@ fn main() {
     let monofile = File::open("example.monochrome").unwrap();
     let monofile = Rc::new(RefCell::new(monofile));
     let monofile_clousure = Rc::clone(&monofile);
-    let monofile_src: SimpleMonochromeReader<_, 16> =
-        SimpleMonochromeReader::new(Size { w: 2, h: 2 }, move |buffer| {
-            let mut f = monofile_clousure.try_borrow_mut().unwrap();
-            Ok(f.read(buffer).map_err(|_| Error::BufferProbingError)?)
-        });
+    let monofile_bitprov: BufToBit<_, 16> = BufToBit::new(move |buf| {
+        let mut f = monofile_clousure.try_borrow_mut().unwrap();
+        Ok(f.read(buf).map_err(|_| Error::BufferProbingError)?)
+    });
+    let monofile_src = SimpleMonochromeReader::new(Size { w: 2, h: 2 }, monofile_bitprov);
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
         .add_layer(Box::new(bg), Size { w: 0, h: 0 })
