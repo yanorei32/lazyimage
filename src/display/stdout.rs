@@ -2,8 +2,8 @@ use crate::display::DisplayableMap;
 use crate::display::DisplayableMapBuilder;
 use crate::interface::Error;
 use crate::interface::{Color, ImageProvider};
+use crate::std::{string::{String, ToString}, println, print};
 use enum_map::enum_map;
-use crate::std::string::{String, ToString};
 
 impl Default for DisplayableMapBuilder<String> {
     fn default() -> Self {
@@ -19,25 +19,31 @@ impl Default for DisplayableMapBuilder<String> {
 }
 
 pub trait Stdout<T> {
-    fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>) -> Result<(), Error>;
+    fn display_to_stdout<P: core::fmt::Display>(
+        &mut self,
+        map: DisplayableMap<P>,
+    ) -> Result<(), Error>;
 }
 
 impl<T> Stdout<T> for T
 where
     T: ImageProvider,
 {
-    fn display_to_stdout<P: core::fmt::Display>(&mut self, map: DisplayableMap<P>) -> Result<(), Error> {
+    fn display_to_stdout<P: core::fmt::Display>(
+        &mut self,
+        map: DisplayableMap<P>,
+    ) -> Result<(), Error> {
         let s = self.get_size();
 
-        std::println!("{}x{}", s.w, s.h);
+        println!("{}x{}", s.w, s.h);
 
         for _ in 0..s.h {
             for _ in 0..s.w {
                 let stdout = &map[self.next()?];
-                std::print!("{stdout}");
+                print!("{stdout}");
             }
 
-            std::println!();
+            println!();
         }
 
         Ok(())

@@ -1,4 +1,2 @@
 pub mod rect;
-
-// #[cfg(feature = "reader")]
-// pub mod byte_reader;
+pub mod simple_text_reader;

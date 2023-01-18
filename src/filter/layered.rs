@@ -1,7 +1,5 @@
 use crate::interface::{Area, Color, Error, ImageProvider, Size};
-
 use alloc::{boxed::Box, vec::Vec};
-
 use core::fmt::Debug;
 
 #[derive(Debug)]
@@ -70,12 +68,10 @@ impl ImageProvider for LayeredImage {
     }
 
     fn next(&mut self) -> Result<Color, Error> {
-        let mut c = self.current_pos;
-
         let mut color = Color::Transpalent;
 
         for layer in &mut self.layers {
-            if !layer.area.contains(c) {
+            if !layer.area.contains(self.current_pos) {
                 continue;
             }
 
@@ -85,14 +81,12 @@ impl ImageProvider for LayeredImage {
             }
         }
 
-        if c.w == self.size.w - 1 {
-            c.w = 0;
-            c.h += 1;
-        } else {
-            c.w += 1;
-        }
-
-        self.current_pos = c;
+        self.current_pos = match self.current_pos {
+            // if end of line
+            p if p.w == self.size.w - 1 => Size { w: 0, h: p.h + 1 },
+            // otherwise
+            p => Size { w: p.w + 1, h: p.h },
+        };
 
         Ok(color)
     }

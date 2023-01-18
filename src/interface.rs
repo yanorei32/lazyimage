@@ -27,8 +27,8 @@ pub struct Area {
 impl Area {
     pub fn from_pos_size(pos: Size, size: Size) -> Self {
         Self {
-            w: pos.w..pos.w+size.w,
-            h: pos.h..pos.h+size.h,
+            w: pos.w..pos.w + size.w,
+            h: pos.h..pos.h + size.h,
         }
     }
 
@@ -51,13 +51,10 @@ pub enum Error {
     RequestedU8IsNotFound,
     HorizontalOverflowIsDetected,
     BufferProbingError,
+    UnexpectedEOF,
 }
 
 pub trait ImageProvider: Debug {
     fn get_size(&self) -> Size;
     fn next(&mut self) -> Result<Color, Error>;
-}
-
-pub trait BufferProber: Debug {
-    fn probe(&mut self) -> Result<(&[u8], usize), Error>;
 }
