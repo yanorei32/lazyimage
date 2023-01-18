@@ -1,6 +1,7 @@
 use crate::interface::{Area, Color, Error, ImageProvider, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
+use core::iter::Iterator;
 
 #[derive(Debug)]
 struct Layer {
@@ -60,14 +61,10 @@ impl LayeredImageBuilder {
     }
 }
 
-impl LayeredImage {}
+impl Iterator for LayeredImage {
+    type Item = Color;
 
-impl ImageProvider for LayeredImage {
-    fn get_size(&self) -> Size {
-        self.size
-    }
-
-    fn next(&mut self) -> Result<Color, Error> {
+    fn next(&mut self) -> Option<Color> {
         let mut color = Color::Transpalent;
 
         for layer in &mut self.layers {
@@ -89,6 +86,12 @@ impl ImageProvider for LayeredImage {
             p => Size { w: p.w + 1, h: p.h },
         };
 
-        Ok(color)
+        Some(color)
+    }
+}
+
+impl ImageProvider for LayeredImage {
+    fn get_size(&self) -> Size {
+        self.size
     }
 }

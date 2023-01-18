@@ -42,7 +42,7 @@ where
 
         for _ in 0..s.h {
             for _ in 0..s.w {
-                let stdout = &map[self.next()?];
+                let stdout = &map[self.next().ok_or(Error::UnexpectedEOF)?];
                 print!("{stdout}");
             }
 

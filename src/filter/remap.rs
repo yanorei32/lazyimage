@@ -1,5 +1,6 @@
 use enum_map::{enum_map, EnumMap};
-use crate::interface::{Color, ImageProvider, Size, Error};
+use core::iter::Iterator;
+use crate::interface::{Color, ImageProvider, Size};
 
 type Remap = EnumMap<Color, Color>;
 
@@ -60,8 +61,15 @@ where
     fn get_size(&self) -> Size {
         self.image.get_size()
     }
+}
 
-    fn next(&mut self) -> Result<Color, Error> {
-        Ok(self.remap[self.image.next()?])
+impl<T> Iterator for RemappedImage<T>
+where
+    T: ImageProvider,
+{
+    type Item = Color;
+
+    fn next(&mut self) -> Option<Color> {
+        Some(self.remap[self.image.next()?])
     }
 }

@@ -51,7 +51,11 @@ where
 
         for y in 0..s.h {
             for x in 0..s.w {
-                buf.put_pixel(x.into(), y.into(), map[self.next()?]);
+                buf.put_pixel(
+                    x.into(),
+                    y.into(),
+                    map[self.next().ok_or(Error::UnexpectedEOF)?],
+                );
             }
         }
 

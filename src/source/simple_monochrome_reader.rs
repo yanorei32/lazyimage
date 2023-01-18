@@ -1,4 +1,4 @@
-use crate::interface::{Color, Error, ImageProvider, Size};
+use crate::interface::{Color, ImageProvider, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -21,19 +21,24 @@ where
     }
 }
 
+impl<P> Iterator for SimpleMonochromeReader<P>
+where
+    P: Iterator<Item = bool>,
+{
+    type Item = Color;
+    fn next(&mut self) -> Option<Color> {
+        Some(match self.provider.next()? {
+            true => Color::Black,
+            false => Color::White,
+        })
+    }
+}
+
 impl<P> ImageProvider for SimpleMonochromeReader<P>
 where
-    P: Iterator<Item = bool>
+    P: Iterator<Item = bool>,
 {
     fn get_size(&self) -> Size {
         self.size
-    }
-
-    fn next(&mut self) -> Result<Color, Error> {
-        match self.provider.next() {
-            Some(true) => Ok(Color::Black),
-            Some(false) => Ok(Color::White),
-            None => Err(Error::UnexpectedEOF),
-        }
     }
 }

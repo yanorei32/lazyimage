@@ -1,4 +1,4 @@
-use crate::interface::{Color, Error, ImageProvider, Size};
+use crate::interface::{Color, ImageProvider, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -21,24 +21,29 @@ where
     }
 }
 
+impl<P> Iterator for SimpleTextReader<P>
+where
+    P: Iterator<Item = u8>,
+{
+    type Item = Color;
+    fn next(&mut self) -> Option<Color> {
+        loop {
+            match self.provider.next()? {
+                b'B' => return Some(Color::Black),
+                b'W' => return Some(Color::White),
+                b'T' => return Some(Color::Third),
+                b' ' => return Some(Color::Transpalent),
+                _ => continue,
+            }
+        }
+    }
+}
+
 impl<P> ImageProvider for SimpleTextReader<P>
 where
     P: Iterator<Item = u8>,
 {
     fn get_size(&self) -> Size {
         self.size
-    }
-
-    fn next(&mut self) -> Result<Color, Error> {
-        loop {
-            match self.provider.next() {
-                Some(b'B') => return Ok(Color::Black),
-                Some(b'W') => return Ok(Color::White),
-                Some(b'T') => return Ok(Color::Third),
-                Some(b' ') => return Ok(Color::Transpalent),
-                Some(_) => continue,
-                None => return Err(Error::UnexpectedEOF),
-            }
-        }
     }
 }

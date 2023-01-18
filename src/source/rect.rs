@@ -1,4 +1,5 @@
-use crate::interface::{Color, ImageProvider, Size, Error};
+use crate::interface::{Color, ImageProvider, Size};
+use core::iter::Iterator;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
@@ -14,12 +15,15 @@ impl Rect {
     }
 }
 
+impl Iterator for Rect {
+    type Item = Color;
+    fn next(&mut self) -> Option<Color> {
+        Some(self.color)
+    }
+}
+
 impl ImageProvider for Rect {
     fn get_size(&self) -> Size {
         self.size
-    }
-
-    fn next(&mut self) -> Result<Color, Error> {
-        Ok(self.color)
     }
 }
