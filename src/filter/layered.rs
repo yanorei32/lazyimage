@@ -25,8 +25,7 @@ pub struct LayeredImageBuilder {
 }
 
 impl LayeredImageBuilder {
-    #[must_use]
-    pub fn new(size: Size) -> Self {
+    #[must_use] pub fn new(size: Size) -> Self {
         Self {
             size,
             layers: Vec::new(),
@@ -51,8 +50,7 @@ impl LayeredImageBuilder {
         Ok(self)
     }
 
-    #[must_use]
-    pub fn build(self) -> LayeredImage {
+    #[must_use] pub fn build(self) -> LayeredImage {
         LayeredImage {
             current_pos: Size { w: 0, h: 0 },
             size: self.size,

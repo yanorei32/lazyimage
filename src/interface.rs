@@ -25,14 +25,14 @@ pub struct Area {
 }
 
 impl Area {
-    pub fn from_pos_size(pos: Size, size: Size) -> Self {
+    #[must_use] pub fn from_pos_size(pos: Size, size: Size) -> Self {
         Self {
             w: pos.w..pos.w + size.w,
             h: pos.h..pos.h + size.h,
         }
     }
 
-    pub fn contains(&self, pos: Size) -> bool {
+    #[must_use] pub fn contains(&self, pos: Size) -> bool {
         self.w.contains(&pos.w) && self.h.contains(&pos.h)
     }
 }

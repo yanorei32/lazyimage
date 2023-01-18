@@ -30,26 +30,20 @@ fn main() {
 
     let txt = Rc::new(RefCell::new(File::open("example.txt").unwrap()));
     let txt_clousure = Rc::clone(&txt);
-    let txt_iter: ByteIter<_, 16> = ByteIter::new(move |buf| {
-        let mut f = txt_clousure.try_borrow_mut().unwrap();
-        Some(f.read(buf).ok()?)
-    });
+    let txt_iter: ByteIter<_, 16> =
+        ByteIter::new(move |buf| txt_clousure.try_borrow_mut().unwrap().read(buf).ok());
     let txt_src = TextReader::new(Size { w: 5, h: 5 }, txt_iter);
 
     let mono = Rc::new(RefCell::new(File::open("example.monochrome").unwrap()));
     let mono_clousure = Rc::clone(&mono);
-    let mono_iter: BitIter<_, 16> = BitIter::new(move |buf| {
-        let mut f = mono_clousure.try_borrow_mut().unwrap();
-        Some(f.read(buf).ok()?)
-    });
+    let mono_iter: BitIter<_, 16> =
+        BitIter::new(move |buf| mono_clousure.try_borrow_mut().unwrap().read(buf).ok());
     let mono_src = MonochromeReader::new(Size { w: 2, h: 2 }, mono_iter);
 
     let color = Rc::new(RefCell::new(File::open("example.fullcolor").unwrap()));
     let color_clousure = Rc::clone(&color);
-    let color_iter: BitIter<_, 16> = BitIter::new(move |buf| {
-        let mut f = color_clousure.try_borrow_mut().unwrap();
-        Some(f.read(buf).ok()?)
-    });
+    let color_iter: BitIter<_, 16> =
+        BitIter::new(move |buf| color_clousure.try_borrow_mut().unwrap().read(buf).ok());
     let color_src = FullcolorReader::new(Size { w: 2, h: 2 }, color_iter);
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
