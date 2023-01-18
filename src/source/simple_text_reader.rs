@@ -3,7 +3,7 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct SimpleTextReader<T, const PROBE_SIZE: usize> 
+pub struct SimpleTextReader<T, const PROBE_SIZE: usize>
 where
     T: FnMut(&mut [u8]) -> Result<usize, Error>,
 {
