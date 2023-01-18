@@ -9,7 +9,7 @@ use image_provider::{
         remap::{RemapBuilder, RemappedImage},
     },
     interface::{Color, Size},
-    reader::{BufToByte, BufToBit},
+    reader::{ByteIter, BitIter},
     source::{
         rect::Rect, simple_monochrome_reader::SimpleMonochromeReader,
         simple_text_reader::SimpleTextReader,
@@ -28,23 +28,21 @@ fn main() {
 
     let bg3 = RemappedImage::new(bg3, remap);
 
-    let txtfile = File::open("example.txt").unwrap();
-    let txtfile = Rc::new(RefCell::new(txtfile));
-    let txtfile_clousure = Rc::clone(&txtfile);
-    let txtfile_byteprov: BufToByte<_, 16> = BufToByte::new(move |buf| {
-        let mut f = txtfile_clousure.try_borrow_mut().unwrap();
+    let txt = Rc::new(RefCell::new(File::open("example.txt").unwrap()));
+    let txt_clousure = Rc::clone(&txt);
+    let txt_iter: ByteIter<_, 16> = ByteIter::new(move |buf| {
+        let mut f = txt_clousure.try_borrow_mut().unwrap();
         Some(f.read(buf).ok()?)
     });
-    let txtfile_src = SimpleTextReader::new(Size { w: 5, h: 5 }, txtfile_byteprov);
+    let txt_src = SimpleTextReader::new(Size { w: 5, h: 5 }, txt_iter);
 
-    let monofile = File::open("example.monochrome").unwrap();
-    let monofile = Rc::new(RefCell::new(monofile));
-    let monofile_clousure = Rc::clone(&monofile);
-    let monofile_bitprov: BufToBit<_, 16> = BufToBit::new(move |buf| {
-        let mut f = monofile_clousure.try_borrow_mut().unwrap();
+    let mono = Rc::new(RefCell::new(File::open("example.monochrome").unwrap()));
+    let mono_clousure = Rc::clone(&mono);
+    let mono_iter: BitIter<_, 16> = BitIter::new(move |buf| {
+        let mut f = mono_clousure.try_borrow_mut().unwrap();
         Some(f.read(buf).ok()?)
     });
-    let monofile_src = SimpleMonochromeReader::new(Size { w: 2, h: 2 }, monofile_bitprov);
+    let mono_src = SimpleMonochromeReader::new(Size { w: 2, h: 2 }, mono_iter);
 
     let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
         .add_layer(Box::new(bg), Size { w: 0, h: 0 })
@@ -53,9 +51,9 @@ fn main() {
         .unwrap()
         .add_layer(Box::new(bg3), Size { w: 3, h: 3 })
         .unwrap()
-        .add_layer(Box::new(txtfile_src), Size { w: 11, h: 4 })
+        .add_layer(Box::new(txt_src), Size { w: 11, h: 4 })
         .unwrap()
-        .add_layer(Box::new(monofile_src), Size { w: 0, h: 0 })
+        .add_layer(Box::new(mono_src), Size { w: 0, h: 0 })
         .unwrap()
         .build();
 

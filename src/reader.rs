@@ -3,7 +3,7 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct BufToByte<P, const PROBE_SIZE: usize>
+pub struct ByteIter<P, const PROBE_SIZE: usize>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
@@ -14,7 +14,7 @@ where
     ptr: usize,
 }
 
-impl<P, const PROBE_SIZE: usize> BufToByte<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> ByteIter<P, PROBE_SIZE>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<P, const PROBE_SIZE: usize> Iterator for BufToByte<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> Iterator for ByteIter<P, PROBE_SIZE>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
@@ -55,7 +55,7 @@ where
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct BufToBit<P, const PROBE_SIZE: usize>
+pub struct BitIter<P, const PROBE_SIZE: usize>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
@@ -66,7 +66,7 @@ where
     bitptr: usize,
 }
 
-impl<P, const PROBE_SIZE: usize> BufToBit<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> BitIter<P, PROBE_SIZE>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
@@ -80,7 +80,7 @@ where
     }
 }
 
-impl<P, const PROBE_SIZE: usize> Iterator for BufToBit<P, PROBE_SIZE>
+impl<P, const PROBE_SIZE: usize> Iterator for BitIter<P, PROBE_SIZE>
 where
     P: FnMut(&mut [u8]) -> Option<usize>,
 {
