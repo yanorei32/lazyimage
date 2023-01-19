@@ -33,6 +33,7 @@ where
 {
     type Item = Cutout<FullColor>;
     fn next(&mut self) -> Option<Self::Item> {
+        self.ptr.next()?;
         Some(match (self.provider.next()?, self.provider.next()?) {
             (false, false) => Cutout::Opaque(FullColor::White),
             (false, true) => Cutout::Opaque(FullColor::Black),

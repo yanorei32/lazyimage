@@ -1,7 +1,6 @@
 extern crate alloc;
 use alloc::rc::Rc;
 use core::cell::RefCell;
-use image::{DynamicImage, ImageBuffer, Pixel};
 use image_provider::{
     interface::{FullColor, Image, Point, Size},
     reader::{BitIter, ByteIter},
@@ -50,23 +49,5 @@ fn main() {
         .overlay(Point { w: 3, h: 7 }, color_src)
         .unwrap();
 
-    let size = image.size();
-
-    let pixels: Vec<u8> = image
-        .remap(|v| match v {
-            FullColor::White => image::Rgb([192, 192, 192]),
-            FullColor::Black => image::Rgb([32, 32, 32]),
-            FullColor::Third => image::Rgb([192, 32, 32]),
-        })
-        .flat_map(|v| v.channels().to_owned())
-        .collect();
-
-    let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
-        ImageBuffer::from_vec(size.w.into(), size.h.into(), pixels).unwrap();
-
-    let dynamic = DynamicImage::from(buffer);
-    dynamic
-        .resize(160, 90, image::imageops::FilterType::Nearest)
-        .save("example.png")
-        .unwrap();
+    image.png_sink("example.png", 10).unwrap();
 }

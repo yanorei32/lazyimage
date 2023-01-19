@@ -11,8 +11,7 @@ image = { version = "0.24.5", optional = true, default-features = false }
 derivative = { version = "2.2.0", features = ["use_core"] }
 
 [features]
-default = ["debug_displays"]
-debug_displays = ["stdout_display", "imagebuffer_display"]
-imagebuffer_display = ["std", "image", "image/png"]
-stdout_display = ["std"]
+default = ["debug_sink"]
+debug_sink = ["png_sink"]
+png_sink = ["std", "image", "image/png"]
 std = []

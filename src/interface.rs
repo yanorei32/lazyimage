@@ -65,6 +65,27 @@ impl<T> From<T> for Cutout<T> {
     }
 }
 
+#[cfg(feature = "image")]
+impl From<FullColor> for crate::image::Rgb<u8> {
+    fn from(value: FullColor) -> Self {
+        match value {
+            FullColor::White => image::Rgb([192, 192, 192]),
+            FullColor::Black => image::Rgb([32, 32, 32]),
+            FullColor::Third => image::Rgb([192, 32, 32]),
+        }
+    }
+}
+
+#[cfg(feature = "image")]
+impl From<Cutout<FullColor>> for crate::image::Rgb<u8> {
+    fn from(value: Cutout<FullColor>) -> Self {
+        match value {
+            Cutout::Cutout => image::Rgb([255, 0, 255]),
+            Cutout::Opaque(v) => v.into(),
+        }
+    }
+}
+
 impl From<MonoColor> for FullColor {
     fn from(c: MonoColor) -> FullColor {
         match c {
@@ -104,5 +125,44 @@ where
         OverlayColor: Into<Self::Item> + Debug,
     {
         OverlayedImage::new(self, pos, overlay)
+    }
+
+    #[cfg(feature = "image")]
+    fn png_sink<Q>(
+        self,
+        path: Q,
+        scale: u8,
+    ) -> Result<(), crate::std::boxed::Box<dyn crate::std::error::Error>>
+    where
+        Q: AsRef<crate::std::path::Path>,
+        Self: Sized,
+        Self::Item: Into<crate::image::Rgb<u8>>,
+    {
+        use crate::image::{imageops::FilterType, DynamicImage, ImageBuffer, Pixel, ImageFormat};
+        use crate::std::{borrow::ToOwned, vec::Vec};
+
+        let size = self.size();
+
+        let pixels: crate::std::vec::Vec<u8> = self
+            .map(|v| v.into())
+            .flat_map(|v| v.channels().to_owned())
+            .collect();
+
+        let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
+            ImageBuffer::from_vec(size.w.into(), size.h.into(), pixels).ok_or("Invalid size")?;
+
+        if scale == 1 {
+            buffer.save_with_format(path, ImageFormat::Png)?;
+        } else {
+            DynamicImage::from(buffer)
+                .resize(
+                    size.w as u32 * scale as u32,
+                    size.h as u32 * scale as u32,
+                    FilterType::Nearest,
+                )
+                .save_with_format(path, ImageFormat::Png)?;
+        }
+
+        Ok(())
     }
 }
