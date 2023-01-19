@@ -6,53 +6,58 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct RemappedImage<Im, Func, F, T>
+pub struct RemappedImage<I, F, FromColor, ToColor>
 where
-    Im: Image<F>,
-    Func: Fn(F) -> T,
-    F: Debug,
-    T: Debug,
+    I: Image<FromColor>,
+    F: Fn(FromColor) -> ToColor,
+    FromColor: Debug,
+    ToColor: Debug,
 {
-    image: Im,
+    image: I,
     #[derivative(Debug = "ignore")]
-    f: Func,
-    from_type: PhantomData<F>,
-    to_type: PhantomData<T>,
+    f: F,
+    from_color: PhantomData<FromColor>,
+    to_color: PhantomData<ToColor>,
 }
 
-impl<Im, Func, F, T> Iterator for RemappedImage<Im, Func, F, T>
+impl<I, F, FromColor, ToColor> Iterator for RemappedImage<I, F, FromColor, ToColor>
 where
-    Im: Image<F>,
-    Func: Fn(F) -> T,
-    F: Debug,
-    T: Debug,
+    I: Image<FromColor>,
+    F: Fn(FromColor) -> ToColor,
+    FromColor: Debug,
+    ToColor: Debug,
 {
-    type Item = T;
-    fn next(&mut self) -> Option<T> {
+    type Item = ToColor;
+    fn next(&mut self) -> Option<ToColor> {
         self.image.next().map(&self.f)
     }
 }
 
-impl<Im, Func, F, T> Image<T> for RemappedImage<Im, Func, F, T>
+impl<I, F, FromColor, ToColor> Image<ToColor> for RemappedImage<I, F, FromColor, ToColor>
 where
-    Im: Image<F>,
-    Func: Fn(F) -> T,
-    F: Debug,
-    T: Debug,
+    I: Image<FromColor>,
+    F: Fn(FromColor) -> ToColor,
+    FromColor: Debug,
+    ToColor: Debug,
 {
     fn size(&self) -> Size {
         self.image.size()
     }
 }
 
-impl<Im, Func, F, T> RemappedImage<Im, Func, F, T>
+impl<I, F, FromColor, ToColor> RemappedImage<I, F, FromColor, ToColor>
 where
-    Im: Image<F>,
-    Func: Fn(F) -> T,
-    F: Debug,
-    T: Debug,
+    I: Image<FromColor>,
+    F: Fn(FromColor) -> ToColor,
+    FromColor: Debug,
+    ToColor: Debug,
 {
-    pub(crate) fn new(image: Im, f: Func) -> Self {
-        Self { image, f, from_type: PhantomData, to_type: PhantomData }
+    pub(crate) fn new(image: I, f: F) -> Self {
+        Self {
+            image,
+            f,
+            from_color: PhantomData,
+            to_color: PhantomData,
+        }
     }
 }
