@@ -8,6 +8,7 @@ pub struct CanvasIterator {
 }
 
 impl CanvasIterator {
+    #[must_use]
     pub fn new(size: Size) -> Self {
         Self {
             size,
@@ -22,8 +23,11 @@ impl Iterator for CanvasIterator {
         let current = self.pointer;
 
         self.pointer = match self.pointer {
+            // empty
+            _ if self.size.h == 0 || self.size.w == 0 => return None,
+
             // if end of file
-            p if p.w == self.size.w - 1 && p.h == self.size.h  => return None,
+            p if p.w == 0 && p.h == self.size.h => return None,
 
             // if end of line
             p if p.w == self.size.w - 1 => Point { w: 0, h: p.h + 1 },
