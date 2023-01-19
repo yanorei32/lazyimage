@@ -1,6 +1,8 @@
-use core::fmt::Debug;
-use core::ops::{Add, Range};
-use enum_map::Enum;
+use crate::filter::remap::RemappedImage;
+use core::{
+    fmt::Debug,
+    ops::{Add, Range},
+};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Size {
@@ -25,27 +27,65 @@ pub struct Area {
 }
 
 impl Area {
-    #[must_use] pub fn from_pos_size(pos: Size, size: Size) -> Self {
+    #[must_use]
+    pub fn from_pos_size(pos: Size, size: Size) -> Self {
         Self {
             w: pos.w..pos.w + size.w,
             h: pos.h..pos.h + size.h,
         }
     }
 
-    #[must_use] pub fn contains(&self, pos: Size) -> bool {
+    #[must_use]
+    pub fn contains(&self, pos: Size) -> bool {
         self.w.contains(&pos.w) && self.h.contains(&pos.h)
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Enum)]
-pub enum Color {
-    Transpalent,
+#[derive(Debug, Copy, Clone)]
+pub enum Cutout<T> {
+    Cutout,
+    Opaque(T),
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum MonoColor {
+    Black,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum FullColor {
     White,
     Black,
     Third,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+impl<F> Cutout<F> {
+    pub fn convert_inner<T>(self) -> Cutout<T>
+    where
+        T: From<F>,
+    {
+        match self {
+            Cutout::Cutout => Cutout::Cutout,
+            Cutout::Opaque(v) => Cutout::Opaque(T::from(v)),
+        }
+    }
+}
+
+impl<T> From<T> for Cutout<T> {
+    fn from(c: T) -> Cutout<T> {
+        Cutout::Opaque(c)
+    }
+}
+
+impl From<MonoColor> for FullColor {
+    fn from(c: MonoColor) -> FullColor {
+        match c {
+            MonoColor::Black => FullColor::Black,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
 pub enum Error {
     RequestedPixelIsNotFound,
     RequestedU8IsNotFound,
@@ -54,6 +94,18 @@ pub enum Error {
     UnexpectedEOF,
 }
 
-pub trait Image: Iterator<Item = Color> + Debug {
+pub trait Image<P>: Iterator<Item = P> + Debug
+where
+    P: Debug,
+{
     fn size(&self) -> Size;
+
+    fn remap<F, B>(self, f: F) -> RemappedImage<Self, F, Self::Item, B>
+    where
+        Self: Sized + Iterator<Item = P>,
+        F: Fn(Self::Item) -> B,
+        B: Debug,
+    {
+        RemappedImage::new(self, f)
+    }
 }

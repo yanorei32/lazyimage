@@ -1,4 +1,4 @@
-use crate::interface::{Color, Image, Size};
+use crate::interface::{Cutout, MonoColor, Image, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -25,18 +25,18 @@ impl<P> Iterator for MonochromeReader<P>
 where
     P: Iterator<Item = bool>,
 {
-    type Item = Color;
-    fn next(&mut self) -> Option<Color> {
+    type Item = Cutout<MonoColor>;
+    fn next(&mut self) -> Option<Self::Item> {
         self.provider.next().map(|v| match v {
-            true => Color::Black,
-            false => Color::White,
+            true => Cutout::Opaque(MonoColor::Black),
+            false => Cutout::Cutout,
         })
     }
 }
 
-impl<P> Image for MonochromeReader<P>
+impl<Provider> Image<Cutout<MonoColor>> for MonochromeReader<Provider>
 where
-    P: Iterator<Item = bool>,
+    Provider: Iterator<Item = bool>,
 {
     fn size(&self) -> Size {
         self.size

@@ -1,7 +1,7 @@
 #![no_std]
 #![warn(clippy::pedantic)]
 
-pub mod display;
+// pub mod display;
 pub mod filter;
 pub mod interface;
 pub mod source;

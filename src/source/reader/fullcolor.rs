@@ -1,4 +1,4 @@
-use crate::interface::{Color, Image, Size};
+use crate::interface::{Cutout, FullColor, Image, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -25,18 +25,18 @@ impl<P> Iterator for FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {
-    type Item = Color;
-    fn next(&mut self) -> Option<Color> {
+    type Item = Cutout<FullColor>;
+    fn next(&mut self) -> Option<Self::Item> {
         Some(match (self.provider.next()?, self.provider.next()?) {
-            (false, false) => Color::White,
-            (false, true) => Color::Black,
-            (true, false) => Color::Third,
-            (true, true) => Color::Transpalent,
+            (false, false) => Cutout::Opaque(FullColor::White),
+            (false, true) => Cutout::Opaque(FullColor::Black),
+            (true, false) => Cutout::Opaque(FullColor::Third),
+            (true, true) => Cutout::Cutout,
         })
     }
 }
 
-impl<P> Image for FullcolorReader<P>
+impl<P> Image<Cutout<FullColor>> for FullcolorReader<P>
 where
     P: Iterator<Item = bool>,
 {

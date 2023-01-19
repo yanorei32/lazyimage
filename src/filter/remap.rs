@@ -1,75 +1,58 @@
-use crate::interface::{Color, Image, Size};
+use crate::interface::{Image, Size};
+use core::fmt::Debug;
 use core::iter::Iterator;
-use enum_map::{enum_map, EnumMap};
+use core::marker::PhantomData;
+use derivative::Derivative;
 
-type Remap = EnumMap<Color, Color>;
-
-#[derive(Debug)]
-pub struct RemapBuilder(Remap);
-
-impl Default for RemapBuilder {
-    fn default() -> Self {
-        Self(enum_map! {
-            Color::Third => Color::Third,
-            Color::White => Color::White,
-            Color::Black => Color::Black,
-            Color::Transpalent => Color::Transpalent,
-        })
-    }
-}
-
-impl RemapBuilder {
-    #[must_use]
-    pub fn set_flip(mut self, a: Color, b: Color) -> Self {
-        self.0[a] = b;
-        self.0[b] = a;
-        self
-    }
-
-    #[must_use]
-    pub fn set_map(mut self, from: Color, to: Color) -> Self {
-        self.0[from] = to;
-        self
-    }
-
-    #[must_use]
-    pub fn build(self) -> Remap {
-        self.0
-    }
-}
-
-#[derive(Debug)]
-pub struct RemappedImage<T> {
-    image: T,
-    remap: Remap,
-}
-
-impl<T> RemappedImage<T>
+#[derive(Derivative)]
+#[derivative(Debug)]
+pub struct RemappedImage<Im, Func, F, T>
 where
-    T: Image,
+    Im: Image<F>,
+    Func: Fn(F) -> T,
+    F: Debug,
+    T: Debug,
 {
-    #[must_use]
-    pub fn new(image: T, remap: Remap) -> Self {
-        Self { image, remap }
+    image: Im,
+    #[derivative(Debug = "ignore")]
+    f: Func,
+    from_type: PhantomData<F>,
+    to_type: PhantomData<T>,
+}
+
+impl<Im, Func, F, T> Iterator for RemappedImage<Im, Func, F, T>
+where
+    Im: Image<F>,
+    Func: Fn(F) -> T,
+    F: Debug,
+    T: Debug,
+{
+    type Item = T;
+    fn next(&mut self) -> Option<T> {
+        self.image.next().map(&self.f)
     }
 }
 
-impl<T> Image for RemappedImage<T>
+impl<Im, Func, F, T> Image<T> for RemappedImage<Im, Func, F, T>
 where
-    T: Image,
+    Im: Image<F>,
+    Func: Fn(F) -> T,
+    F: Debug,
+    T: Debug,
 {
     fn size(&self) -> Size {
         self.image.size()
     }
 }
 
-impl<T> Iterator for RemappedImage<T>
+impl<Im, Func, F, T> RemappedImage<Im, Func, F, T>
 where
-    T: Image,
+    Im: Image<F>,
+    Func: Fn(F) -> T,
+    F: Debug,
+    T: Debug,
 {
-    type Item = Color;
-
-    fn next(&mut self) -> Option<Color> {
-        Some(self.remap[self.image.next()?])
+    pub(crate) fn new(image: Im, f: Func) -> Self {
+        Self { image, f, from_type: PhantomData, to_type: PhantomData }
     }
 }

@@ -1,28 +1,41 @@
-use crate::interface::{Color, Image, Size};
+use crate::interface::{Image, Size};
+use core::fmt::Debug;
 use core::iter::Iterator;
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct Rect {
+pub struct Rect<Color>
+where
+    Color: Copy,
+{
     size: Size,
     color: Color,
 }
 
-impl Rect {
+impl<Color> Rect<Color>
+where
+    Color: Copy,
+{
     #[must_use]
     pub fn new(size: Size, color: Color) -> Self {
         Self { size, color }
     }
 }
 
-impl Iterator for Rect {
+impl<Color> Iterator for Rect<Color>
+where
+    Color: Copy,
+{
     type Item = Color;
-    fn next(&mut self) -> Option<Color> {
+    fn next(&mut self) -> Option<Self::Item> {
         Some(self.color)
     }
 }
 
-impl Image for Rect {
+impl<Color> Image<Color> for Rect<Color>
+where
+    Color: Debug + Copy,
+{
     fn size(&self) -> Size {
         self.size
     }

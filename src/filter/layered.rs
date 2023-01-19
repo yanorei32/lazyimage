@@ -1,31 +1,35 @@
-use crate::interface::{Area, Color, Error, Image, Size};
+use crate::interface::{Area, Cutout, Error, Image, Size};
 use alloc::{boxed::Box, vec::Vec};
 use core::fmt::Debug;
 use core::iter::Iterator;
 
 #[derive(Debug)]
-struct Layer {
-    image: Box<dyn Image>,
+struct Layer<Color> {
+    image: Box<dyn Image<Cutout<Color>>>,
     area: Area,
 }
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct LayeredImage {
+pub struct LayeredImage<Color> {
     current_pos: Size,
     size: Size,
-    layers: Vec<Layer>,
+    layers: Vec<Layer<Color>>,
 }
 
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct LayeredImageBuilder {
+pub struct LayeredImageBuilder<Color> {
     size: Size,
-    layers: Vec<Layer>,
+    layers: Vec<Layer<Color>>,
 }
 
-impl LayeredImageBuilder {
-    #[must_use] pub fn new(size: Size) -> Self {
+impl<Color> LayeredImageBuilder<Color>
+where
+    Color: Debug + Copy,
+{
+    #[must_use]
+    pub fn new(size: Size) -> Self {
         Self {
             size,
             layers: Vec::new(),
@@ -35,7 +39,11 @@ impl LayeredImageBuilder {
     /// # Errors
     ///
     /// Will return `Err` if `image` overflowed horizontal.
-    pub fn add_layer(mut self, image: Box<dyn Image>, pos: Size) -> Result<Self, Error> {
+    pub fn add_layer(
+        mut self,
+        image: Box<dyn Image<Cutout<Color>>>,
+        pos: Size,
+    ) -> Result<Self, Error> {
         let size = image.size();
 
         if pos.w + size.w > self.size.w {
@@ -50,7 +58,8 @@ impl LayeredImageBuilder {
         Ok(self)
     }
 
-    #[must_use] pub fn build(self) -> LayeredImage {
+    #[must_use]
+    pub fn build(self) -> LayeredImage<Color> {
         LayeredImage {
             current_pos: Size { w: 0, h: 0 },
             size: self.size,
@@ -59,17 +68,17 @@ impl LayeredImageBuilder {
     }
 }
 
-impl Iterator for LayeredImage {
-    type Item = Color;
+impl<Color> Iterator for LayeredImage<Color> {
+    type Item = Cutout<Color>;
 
-    fn next(&mut self) -> Option<Color> {
+    fn next(&mut self) -> Option<Self::Item> {
         let color = self
             .layers
             .iter_mut()
             .filter(|l| l.area.contains(self.current_pos))
-            .try_fold(Color::Transpalent, |base, l| match l.image.next()? {
-                Color::Transpalent => Some(base),
-                color => Some(color),
+            .try_fold(Cutout::Cutout, |base, l| match l.image.next()? {
+                Cutout::Cutout => Some(base),
+                opaque => Some(opaque),
             })?;
 
         self.current_pos = match self.current_pos {
@@ -84,7 +93,10 @@ impl Iterator for LayeredImage {
     }
 }
 
-impl Image for LayeredImage {
+impl<Color> Image<Cutout<Color>> for LayeredImage<Color>
+where
+    Color: Debug,
+{
     fn size(&self) -> Size {
         self.size
     }

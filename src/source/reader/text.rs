@@ -1,4 +1,4 @@
-use crate::interface::{Color, Image, Size};
+use crate::interface::{Cutout, FullColor, Image, Size};
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -25,21 +25,21 @@ impl<P> Iterator for TextReader<P>
 where
     P: Iterator<Item = u8>,
 {
-    type Item = Color;
-    fn next(&mut self) -> Option<Color> {
+    type Item = Cutout<FullColor>;
+    fn next(&mut self) -> Option<Self::Item> {
         loop {
             match self.provider.next()? {
-                b'B' => return Some(Color::Black),
-                b'W' => return Some(Color::White),
-                b'T' => return Some(Color::Third),
-                b' ' => return Some(Color::Transpalent),
+                b'B' => return Some(Cutout::Opaque(FullColor::Black)),
+                b'W' => return Some(Cutout::Opaque(FullColor::White)),
+                b'T' => return Some(Cutout::Opaque(FullColor::Third)),
+                b' ' => return Some(Cutout::Cutout),
                 _ => continue,
             }
         }
     }
 }
 
-impl<P> Image for TextReader<P>
+impl<P> Image<Cutout<FullColor>> for TextReader<P>
 where
     P: Iterator<Item = u8>,
 {
