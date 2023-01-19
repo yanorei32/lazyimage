@@ -34,9 +34,12 @@ where
     type Item = Cutout<MonoColor>;
     fn next(&mut self) -> Option<Self::Item> {
         self.ptr.next()?;
-        self.provider.next().map(|v| match v {
-            true => Cutout::Opaque(MonoColor::Black),
-            false => Cutout::Cutout,
+        self.provider.next().map(|v| {
+            if v {
+                Cutout::Opaque(MonoColor::Black)
+            } else {
+                Cutout::Cutout
+            }
         })
     }
 }

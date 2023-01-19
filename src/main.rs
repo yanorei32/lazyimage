@@ -58,8 +58,7 @@ fn main() {
             FullColor::Black => image::Rgb([32, 32, 32]),
             FullColor::Third => image::Rgb([192, 32, 32]),
         })
-        .map(|v| v.channels().to_owned())
-        .flatten()
+        .flat_map(|v| v.channels().to_owned())
         .collect();
 
     let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
