@@ -2,6 +2,7 @@ use crate::interface::{Cutout, FullColor, Image, Size};
 use crate::utility::CanvasIterator;
 use derivative::Derivative;
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct TextDecoder<P>

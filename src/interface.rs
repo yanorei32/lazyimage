@@ -114,6 +114,8 @@ where
         RemappedImage::new(self, f)
     }
 
+    /// # Errors
+    /// `image_provider::interface::Error::HorizontalOverflowIsDetected` If src.horz < overlay.horz
     fn overlay<Overlay, OverlayColor>(
         self,
         pos: Point,
@@ -127,6 +129,8 @@ where
         OverlayedImage::new(self, pos, overlay)
     }
 
+    /// # Errors
+    /// image can cause error in save png
     #[cfg(feature = "image")]
     fn png_sink<Q>(
         self,
@@ -138,13 +142,13 @@ where
         Self: Sized,
         Self::Item: Into<crate::image::Rgb<u8>>,
     {
-        use crate::image::{imageops::FilterType, DynamicImage, ImageBuffer, Pixel, ImageFormat};
+        use crate::image::{imageops::FilterType, DynamicImage, ImageBuffer, ImageFormat, Pixel};
         use crate::std::{borrow::ToOwned, vec::Vec};
 
         let size = self.size();
 
         let pixels: crate::std::vec::Vec<u8> = self
-            .map(|v| v.into())
+            .map(core::convert::Into::into)
             .flat_map(|v| v.channels().to_owned())
             .collect();
 
@@ -156,8 +160,8 @@ where
         } else {
             DynamicImage::from(buffer)
                 .resize(
-                    size.w as u32 * scale as u32,
-                    size.h as u32 * scale as u32,
+                    u32::from(size.w) * u32::from(scale),
+                    u32::from(size.h) * u32::from(scale),
                     FilterType::Nearest,
                 )
                 .save_with_format(path, ImageFormat::Png)?;
