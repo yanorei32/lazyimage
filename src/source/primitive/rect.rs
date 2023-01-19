@@ -8,6 +8,7 @@ pub struct Rect<Color>
 where
     Color: Copy,
 {
+    ptr: u32,
     size: Size,
     color: Color,
 }
@@ -18,7 +19,7 @@ where
 {
     #[must_use]
     pub fn new(size: Size, color: Color) -> Self {
-        Self { size, color }
+        Self { ptr: 0, size, color }
     }
 }
 
@@ -28,7 +29,12 @@ where
 {
     type Item = Color;
     fn next(&mut self) -> Option<Self::Item> {
-        Some(self.color)
+        self.ptr += 1;
+        if self.ptr <= self.size.w as usize * self.size.h as usize {
+            Some(self.color)
+        } else {
+            None
+        }
     }
 }
 

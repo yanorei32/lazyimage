@@ -1,9 +1,8 @@
 extern crate alloc;
 use alloc::rc::Rc;
 use core::cell::RefCell;
-use image::{imageops::ColorMap, DynamicImage};
+use image::{DynamicImage, ImageBuffer, Pixel};
 use image_provider::{
-    filter::{layered::LayeredImageBuilder},
     interface::{FullColor, Image, Size},
     reader::{BitIter, ByteIter},
     source::{
@@ -36,37 +35,39 @@ fn main() {
         BitIter::new(move |buf| color_clousure.try_borrow_mut().unwrap().read(buf).ok());
     let color_src = FullcolorReader::new(Size { w: 2, h: 2 }, color_iter);
 
-    let mut layered = LayeredImageBuilder::new(Size { w: 16, h: 9 })
-        .add_layer(Box::new(bg.remap(|v| v.into())), Size { w: 0, h: 0 })
+    let image = bg
+        .overlay(Size { w: 2, h: 2 }, bg2.remap(|v| v.into()))
         .unwrap()
-        .add_layer(Box::new(bg2.remap(|v| v.into())), Size { w: 2, h: 2 })
+        .overlay(Size { w: 3, h: 3 }, bg3.remap(|v| v.into()))
         .unwrap()
-        .add_layer(Box::new(bg3.remap(|v| v.into())), Size { w: 3, h: 3 })
+        .overlay(Size { w: 11, h: 4 }, txt_src)
         .unwrap()
-        .add_layer(Box::new(txt_src), Size { w: 11, h: 4 })
+        .overlay(
+            Size { w: 0, h: 0 },
+            mono_src.remap(|v| v.convert_inner::<FullColor>()),
+        )
         .unwrap()
-        .add_layer(Box::new(mono_src.remap(|v| v.convert_inner())), Size { w: 0, h: 0 })
-        .unwrap()
-        .add_layer(Box::new(color_src), Size { w: 3, h: 7 })
-        .unwrap()
-        .build();
+        .overlay(Size { w: 0, h: 0 }, color_src)
+        .unwrap();
 
-    // let color: Cutout<FullColor> = layered.next().unwrap();
+    let size = image.size();
 
-    // let display_map: DisplayableMap<String> = DisplayableMapBuilder::default().build();
-    // layered.display_to_stdout(display_map).unwrap();
+    let pixels: Vec<u8> = image
+        .remap(|v| match v {
+            FullColor::White => image::Rgb([192, 192, 192]),
+            FullColor::Black => image::Rgb([32, 32, 32]),
+            FullColor::Third => image::Rgb([192, 32, 32]),
+        })
+        .map(|v| v.channels().to_owned())
+        .flatten()
+        .collect();
 
-    // let display_map: DisplayableMap<image::Rgba<u8>> = DisplayableMapBuilder::default().build();
-    // let buf = layered.create_imagebuffer(display_map).unwrap();
-    // //
-    // let dynamic = DynamicImage::from(buf);
-    // dynamic
-    //     .resize(160, 90, image::imageops::FilterType::Nearest)
-    //     .save("example.png")
-    //     .unwrap();
+    let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
+        ImageBuffer::from_vec(size.w.into(), size.h.into(), pixels).unwrap();
 
-    // let mut file = file.try_borrow_mut().unwrap();
-    // let mut x: Vec<u8> = Vec::new();
-    // file.read_to_end(&mut x).unwrap();
-    // println!("{}", unsafe { std::str::from_utf8_unchecked(&x) } );
+    let dynamic = DynamicImage::from(buffer);
+    dynamic
+        .resize(160, 90, image::imageops::FilterType::Nearest)
+        .save("example.png")
+        .unwrap();
 }

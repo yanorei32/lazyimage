@@ -1,4 +1,4 @@
-use crate::filter::remap::RemappedImage;
+use crate::filter::{overlay::OverlayedImage, remap::RemappedImage};
 use core::{
     fmt::Debug,
     ops::{Add, Range},
@@ -102,10 +102,23 @@ where
 
     fn remap<F, B>(self, f: F) -> RemappedImage<Self, F, Self::Item, B>
     where
-        Self: Sized + Iterator<Item = P>,
+        Self: Sized,
         F: Fn(Self::Item) -> B,
         B: Debug,
     {
         RemappedImage::new(self, f)
+    }
+
+    fn overlay<Overlay, OverlayColor>(
+        self,
+        pos: Size,
+        overlay: Overlay,
+    ) -> Result<OverlayedImage<Self, Self::Item, Overlay, OverlayColor>, Error>
+    where
+        Self: Sized,
+        Overlay: Image<Cutout<OverlayColor>>,
+        OverlayColor: Into<Self::Item> + Debug,
+    {
+        OverlayedImage::new(self, pos, overlay)
     }
 }
