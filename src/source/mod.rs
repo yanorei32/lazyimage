@@ -1,2 +1,2 @@
 pub mod primitive;
-pub mod reader;
+pub mod decoder;

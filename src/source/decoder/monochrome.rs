@@ -4,7 +4,7 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct MonochromeReader<P>
+pub struct MonochromeDecoder<P>
 where
     P: Iterator<Item = bool>,
 {
@@ -14,7 +14,7 @@ where
     provider: P,
 }
 
-impl<P> MonochromeReader<P>
+impl<P> MonochromeDecoder<P>
 where
     P: Iterator<Item = bool>,
 {
@@ -27,7 +27,7 @@ where
     }
 }
 
-impl<P> Iterator for MonochromeReader<P>
+impl<P> Iterator for MonochromeDecoder<P>
 where
     P: Iterator<Item = bool>,
 {
@@ -44,7 +44,7 @@ where
     }
 }
 
-impl<Provider> Image<Cutout<MonoColor>> for MonochromeReader<Provider>
+impl<Provider> Image<Cutout<MonoColor>> for MonochromeDecoder<Provider>
 where
     Provider: Iterator<Item = bool>,
 {

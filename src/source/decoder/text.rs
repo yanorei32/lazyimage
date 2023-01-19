@@ -4,9 +4,9 @@ use derivative::Derivative;
 
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct FullcolorReader<P>
+pub struct TextDecoder<P>
 where
-    P: Iterator<Item = bool>,
+    P: Iterator<Item = u8>,
 {
     ptr: CanvasIterator,
     size: Size,
@@ -14,9 +14,9 @@ where
     provider: P,
 }
 
-impl<P> FullcolorReader<P>
+impl<P> TextDecoder<P>
 where
-    P: Iterator<Item = bool>,
+    P: Iterator<Item = u8>,
 {
     pub fn new(size: Size, provider: P) -> Self {
         Self {
@@ -27,25 +27,28 @@ where
     }
 }
 
-impl<P> Iterator for FullcolorReader<P>
+impl<P> Iterator for TextDecoder<P>
 where
-    P: Iterator<Item = bool>,
+    P: Iterator<Item = u8>,
 {
     type Item = Cutout<FullColor>;
     fn next(&mut self) -> Option<Self::Item> {
         self.ptr.next()?;
-        Some(match (self.provider.next()?, self.provider.next()?) {
-            (false, false) => Cutout::Opaque(FullColor::White),
-            (false, true) => Cutout::Opaque(FullColor::Black),
-            (true, false) => Cutout::Opaque(FullColor::Third),
-            (true, true) => Cutout::Cutout,
-        })
+        loop {
+            match self.provider.next()? {
+                b'B' => return Some(Cutout::Opaque(FullColor::Black)),
+                b'W' => return Some(Cutout::Opaque(FullColor::White)),
+                b'T' => return Some(Cutout::Opaque(FullColor::Third)),
+                b' ' => return Some(Cutout::Cutout),
+                _ => continue,
+            }
+        }
     }
 }
 
-impl<P> Image<Cutout<FullColor>> for FullcolorReader<P>
+impl<P> Image<Cutout<FullColor>> for TextDecoder<P>
 where
-    P: Iterator<Item = bool>,
+    P: Iterator<Item = u8>,
 {
     fn size(&self) -> Size {
         self.size
