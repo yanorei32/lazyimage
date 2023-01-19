@@ -1,4 +1,5 @@
 use crate::interface::{Cutout, FullColor, Image, Size};
+use crate::utility::CanvasIterator;
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -7,6 +8,7 @@ pub struct TextReader<P>
 where
     P: Iterator<Item = u8>,
 {
+    ptr: CanvasIterator,
     size: Size,
     #[derivative(Debug = "ignore")]
     provider: P,
@@ -17,7 +19,11 @@ where
     P: Iterator<Item = u8>,
 {
     pub fn new(size: Size, provider: P) -> Self {
-        Self { size, provider }
+        Self {
+            ptr: CanvasIterator::new(size),
+            size,
+            provider,
+        }
     }
 }
 
@@ -27,6 +33,7 @@ where
 {
     type Item = Cutout<FullColor>;
     fn next(&mut self) -> Option<Self::Item> {
+        self.ptr.next()?;
         loop {
             match self.provider.next()? {
                 b'B' => return Some(Cutout::Opaque(FullColor::Black)),

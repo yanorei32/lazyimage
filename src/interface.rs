@@ -1,13 +1,22 @@
 use crate::filter::{overlay::OverlayedImage, remap::RemappedImage};
-use core::{
-    fmt::Debug,
-    ops::{Add, Range},
-};
+use core::{fmt::Debug, ops::Add};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Size {
     pub w: u16,
     pub h: u16,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Point {
+    pub w: u16,
+    pub h: u16,
+}
+
+impl From<Point> for Size {
+    fn from(s: Point) -> Size {
+        Size { w: s.w, h: s.h }
+    }
 }
 
 impl Add for Size {
@@ -17,27 +26,6 @@ impl Add for Size {
             w: self.w + rhs.w,
             h: self.h + rhs.h,
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Area {
-    w: Range<u16>,
-    h: Range<u16>,
-}
-
-impl Area {
-    #[must_use]
-    pub fn from_pos_size(pos: Size, size: Size) -> Self {
-        Self {
-            w: pos.w..pos.w + size.w,
-            h: pos.h..pos.h + size.h,
-        }
-    }
-
-    #[must_use]
-    pub fn contains(&self, pos: Size) -> bool {
-        self.w.contains(&pos.w) && self.h.contains(&pos.h)
     }
 }
 
@@ -87,11 +75,7 @@ impl From<MonoColor> for FullColor {
 
 #[derive(Debug, Copy, Clone)]
 pub enum Error {
-    RequestedPixelIsNotFound,
-    RequestedU8IsNotFound,
     HorizontalOverflowIsDetected,
-    BufferProbingError,
-    UnexpectedEOF,
 }
 
 pub trait Image<P>: Iterator<Item = P> + Debug
@@ -111,7 +95,7 @@ where
 
     fn overlay<Overlay, OverlayColor>(
         self,
-        pos: Size,
+        pos: Point,
         overlay: Overlay,
     ) -> Result<OverlayedImage<Self, Self::Item, Overlay, OverlayColor>, Error>
     where

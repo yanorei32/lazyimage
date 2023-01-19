@@ -1,4 +1,5 @@
-use crate::interface::{Cutout, MonoColor, Image, Size};
+use crate::interface::{Cutout, Image, MonoColor, Size};
+use crate::utility::CanvasIterator;
 use derivative::Derivative;
 
 #[derive(Derivative)]
@@ -7,6 +8,7 @@ pub struct MonochromeReader<P>
 where
     P: Iterator<Item = bool>,
 {
+    ptr: CanvasIterator,
     size: Size,
     #[derivative(Debug = "ignore")]
     provider: P,
@@ -17,7 +19,11 @@ where
     P: Iterator<Item = bool>,
 {
     pub fn new(size: Size, provider: P) -> Self {
-        Self { size, provider }
+        Self {
+            ptr: CanvasIterator::new(size),
+            size,
+            provider,
+        }
     }
 }
 
@@ -27,6 +33,7 @@ where
 {
     type Item = Cutout<MonoColor>;
     fn next(&mut self) -> Option<Self::Item> {
+        self.ptr.next()?;
         self.provider.next().map(|v| match v {
             true => Cutout::Opaque(MonoColor::Black),
             false => Cutout::Cutout,

@@ -3,7 +3,7 @@ use alloc::rc::Rc;
 use core::cell::RefCell;
 use image::{DynamicImage, ImageBuffer, Pixel};
 use image_provider::{
-    interface::{FullColor, Image, Size},
+    interface::{FullColor, Image, Point, Size},
     reader::{BitIter, ByteIter},
     source::{
         primitive::rect::Rect,
@@ -36,18 +36,18 @@ fn main() {
     let color_src = FullcolorReader::new(Size { w: 2, h: 2 }, color_iter);
 
     let image = bg
-        .overlay(Size { w: 2, h: 2 }, bg2.remap(|v| v.into()))
+        .overlay(Point { w: 2, h: 2 }, bg2.remap(|v| v.into()))
         .unwrap()
-        .overlay(Size { w: 3, h: 3 }, bg3.remap(|v| v.into()))
+        .overlay(Point { w: 3, h: 3 }, bg3.remap(|v| v.into()))
         .unwrap()
-        .overlay(Size { w: 11, h: 4 }, txt_src)
+        .overlay(Point { w: 11, h: 4 }, txt_src)
         .unwrap()
         .overlay(
-            Size { w: 0, h: 0 },
+            Point { w: 0, h: 0 },
             mono_src.remap(|v| v.convert_inner::<FullColor>()),
         )
         .unwrap()
-        .overlay(Size { w: 0, h: 0 }, color_src)
+        .overlay(Point { w: 3, h: 7 }, color_src)
         .unwrap();
 
     let size = image.size();

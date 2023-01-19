@@ -1,4 +1,5 @@
 use crate::interface::{Image, Size};
+use crate::utility::CanvasIterator;
 use core::fmt::Debug;
 use core::iter::Iterator;
 
@@ -8,7 +9,7 @@ pub struct Rect<Color>
 where
     Color: Copy,
 {
-    ptr: u32,
+    ptr: CanvasIterator,
     size: Size,
     color: Color,
 }
@@ -19,7 +20,11 @@ where
 {
     #[must_use]
     pub fn new(size: Size, color: Color) -> Self {
-        Self { ptr: 0, size, color }
+        Self {
+            ptr: CanvasIterator::new(size),
+            size,
+            color,
+        }
     }
 }
 
@@ -29,12 +34,8 @@ where
 {
     type Item = Color;
     fn next(&mut self) -> Option<Self::Item> {
-        self.ptr += 1;
-        if self.ptr <= self.size.w as usize * self.size.h as usize {
-            Some(self.color)
-        } else {
-            None
-        }
+        self.ptr.next()?;
+        Some(self.color)
     }
 }
 

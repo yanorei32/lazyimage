@@ -1,4 +1,5 @@
-use crate::interface::{Area, Cutout, Error, Image, Size};
+use crate::interface::{Cutout, Error, Image, Point, Size};
+use crate::utility::{Area, CanvasIterator};
 use core::fmt::Debug;
 use core::iter::Iterator;
 use core::marker::PhantomData;
@@ -14,7 +15,7 @@ where
     OverlayColor: Into<BaseColor> + Debug,
 {
     area: Area,
-    current_pos: Size,
+    ptr: CanvasIterator,
     base: Base,
     base_color: PhantomData<BaseColor>,
     overlay: Overlay,
@@ -31,27 +32,16 @@ where
 {
     type Item = BaseColor;
     fn next(&mut self) -> Option<Self::Item> {
-
         let base = self.base.next()?;
 
-        if !self.area.contains(self.current_pos) {
-            return Some(base);
-        }
-
-        self.current_pos = match self.current_pos {
-            // if end of line
-            p if p.w == self.base.size().w - 1 => Size { w: 0, h: p.h + 1 },
-
-            // otherwise
-            p => Size { w: p.w + 1, h: p.h },
-        };
-
-        Some(
+        Some(if self.area.contains(self.ptr.next()?) {
             match self.overlay.next()? {
                 Cutout::Cutout => base,
                 Cutout::Opaque(v) => v.into(),
             }
-        )
+        } else {
+            base
+        })
     }
 }
 
@@ -75,14 +65,14 @@ where
     Overlay: Image<Cutout<OverlayColor>>,
     OverlayColor: Into<BaseColor> + Debug,
 {
-    pub(crate) fn new(base: Base, pos: Size, overlay: Overlay) -> Result<Self, Error> {
+    pub(crate) fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
         if pos.w + overlay.size().w > base.size().w {
             return Err(Error::HorizontalOverflowIsDetected);
         }
 
         Ok(Self {
-            area: Area::from_pos_size(pos, overlay.size()),
-            current_pos: Size { w: 0, h: 0 },
+            area: Area::new(pos, overlay.size()),
+            ptr: CanvasIterator::new(base.size()),
             base,
             overlay,
             base_color: PhantomData,
