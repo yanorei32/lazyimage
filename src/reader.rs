@@ -53,56 +53,61 @@ where
     }
 }
 
-#[derive(Derivative)]
-#[derivative(Debug)]
-pub struct BitIter<P, const PROBE_SIZE: usize>
+pub trait BitIterCap<T>
 where
-    P: FnMut(&mut [u8]) -> Option<usize>,
+    T: IntoIterator<Item = u8>,
 {
-    #[derivative(Debug = "ignore")]
-    probe_fn: P,
-    buffer: [u8; PROBE_SIZE],
-    len: usize,
-    bitptr: usize,
+    fn bititer(self) -> BitIter<T>;
 }
 
-impl<P, const PROBE_SIZE: usize> BitIter<P, PROBE_SIZE>
+impl<T> BitIterCap<T> for T
 where
-    P: FnMut(&mut [u8]) -> Option<usize>,
+    T: IntoIterator<Item = u8>,
 {
-    pub fn new(probe_fn: P) -> Self {
+    fn bititer(self) -> BitIter<Self>
+    where
+        Self: Sized,
+    {
+        BitIter::new(self)
+    }
+}
+
+pub struct BitIter<T>
+where
+    T: IntoIterator<Item = u8>,
+{
+    pub provider: T::IntoIter,
+    pub ptr: u8,
+    pub buffer: u8,
+}
+
+impl<T> BitIter<T>
+where
+    T: IntoIterator<Item = u8>,
+{
+    pub fn new(provider: T) -> Self {
         Self {
-            probe_fn,
-            buffer: [0; PROBE_SIZE],
-            len: 0,
-            bitptr: 0,
+            provider: provider.into_iter(),
+            ptr: 8,
+            buffer: 0,
         }
     }
 }
 
-impl<P, const PROBE_SIZE: usize> Iterator for BitIter<P, PROBE_SIZE>
+impl<T> Iterator for BitIter<T>
 where
-    P: FnMut(&mut [u8]) -> Option<usize>,
+    T: IntoIterator<Item = u8>,
 {
     type Item = bool;
 
-    fn next(&mut self) -> Option<bool> {
-        if self.bitptr * 8 == self.len {
-            match (self.probe_fn)(&mut self.buffer) {
-                None => return None,
-                Some(l) if l == 0 => return None,
-                Some(l) => self.len = l,
-            }
-
-            self.bitptr = 0;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.ptr == 8 {
+            self.buffer = self.provider.next()?;
+            self.ptr = 0;
         }
 
-        let ptr = self.bitptr / 8;
-        let bit_idx = self.bitptr % 8;
-        let bit = (self.buffer[ptr] & (1 << bit_idx)) != 0;
-
-        self.bitptr += 1;
-
+        let bit = (self.buffer & (1 << self.ptr)) != 0;
+        self.ptr += 1;
         Some(bit)
     }
 }

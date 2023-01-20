@@ -115,7 +115,7 @@ where
     }
 
     /// # Errors
-    /// `image_provider::interface::Error::HorizontalOverflowIsDetected` If src.horz < overlay.horz
+    /// throw `image_provider::interface::Error::HorizontalOverflowIsDetected` If src.horz < overlay.horz
     fn overlay<Overlay, OverlayColor>(
         self,
         pos: Point,
