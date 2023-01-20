@@ -13,7 +13,8 @@ derivative = { version = "2.2.0", features = ["use_core"] }
 pretty_assertions = "1.3.0"
 
 [features]
-default = ["debug_sink"]
+default = ["debug_sink", "std"]
 debug_sink = ["png_sink"]
-png_sink = ["std", "image", "image/png"]
+png_sink = ["std", "image", "image/png", "sink"]
+sink = []
 std = []

@@ -2,10 +2,7 @@ extern crate image_provider;
 
 use image_provider::{
     interface::*,
-    source::{
-        decoder::{fullcolor::FullcolorDecoder, text::TextDecoder, monochrome::MonochromeDecoder},
-        primitive::rect::Rect,
-    },
+    source::{primitive::Rect, FullcolorDecoder, MonochromeDecoder, TextDecoder},
 };
 use pretty_assertions::assert_eq;
 
@@ -156,10 +153,7 @@ fn fullcolor_decoder_test() {
 fn monochrome_decoder_test() {
     let base = [true, false, true, false, false, true, false, true];
 
-    let valid: Vec<bool> = base
-        .iter()
-        .map(|v| v.to_owned())
-        .collect();
+    let valid: Vec<bool> = base.iter().map(|v| v.to_owned()).collect();
 
     let expected = [
         Cutout::Opaque(MonoColor::Black),

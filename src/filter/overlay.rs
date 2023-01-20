@@ -65,7 +65,7 @@ where
     Overlay: Image<Cutout<OverlayColor>>,
     OverlayColor: Into<BaseColor> + Debug,
 {
-    pub(crate) fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
+    fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
         if pos.w + overlay.size().w > base.size().w {
             return Err(Error::HorizontalOverflowIsDetected);
         }
@@ -78,5 +78,40 @@ where
             base_color: PhantomData,
             overlay_color: PhantomData,
         })
+    }
+}
+
+pub trait Overlay<I, P>
+where
+    Self: Sized,
+    I: Image<P> + Iterator<Item = P>,
+    P: Debug,
+{
+    fn overlay<Overlay, OverlayColor>(
+        self,
+        pos: Point,
+        overlay: Overlay,
+    ) -> Result<OverlayedImage<I, P, Overlay, OverlayColor>, Error>
+    where
+        Overlay: Image<Cutout<OverlayColor>>,
+        OverlayColor: Into<P> + Debug;
+}
+
+impl<I, P> Overlay<I, P> for I
+where
+    Self: Sized,
+    I: Image<P> + Iterator<Item = P>,
+    P: Debug,
+{
+    fn overlay<Overlay, OverlayColor>(
+        self,
+        pos: Point,
+        overlay: Overlay,
+    ) -> Result<OverlayedImage<Self, P, Overlay, OverlayColor>, Error>
+    where
+        Overlay: Image<Cutout<OverlayColor>>,
+        OverlayColor: Into<P> + Debug,
+    {
+        OverlayedImage::new(self, pos, overlay)
     }
 }

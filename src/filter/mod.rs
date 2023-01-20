@@ -1,2 +1,5 @@
-pub mod overlay;
-pub mod remap;
+mod overlay;
+pub use overlay::Overlay;
+
+mod remap;
+pub use remap::RemappedImage;

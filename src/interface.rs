@@ -1,4 +1,4 @@
-use crate::filter::{overlay::OverlayedImage, remap::RemappedImage};
+use crate::filter::{RemappedImage};
 use core::{fmt::Debug, ops::Add};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -112,61 +112,5 @@ where
         B: Debug,
     {
         RemappedImage::new(self, f)
-    }
-
-    /// # Errors
-    /// throw `image_provider::interface::Error::HorizontalOverflowIsDetected` If src.horz < overlay.horz
-    fn overlay<Overlay, OverlayColor>(
-        self,
-        pos: Point,
-        overlay: Overlay,
-    ) -> Result<OverlayedImage<Self, Self::Item, Overlay, OverlayColor>, Error>
-    where
-        Self: Sized,
-        Overlay: Image<Cutout<OverlayColor>>,
-        OverlayColor: Into<Self::Item> + Debug,
-    {
-        OverlayedImage::new(self, pos, overlay)
-    }
-
-    /// # Errors
-    /// image can cause error in save png
-    #[cfg(feature = "image")]
-    fn png_sink<Q>(
-        self,
-        path: Q,
-        scale: u8,
-    ) -> Result<(), crate::std::boxed::Box<dyn crate::std::error::Error>>
-    where
-        Q: AsRef<crate::std::path::Path>,
-        Self: Sized,
-        Self::Item: Into<crate::image::Rgb<u8>>,
-    {
-        use crate::image::{imageops::FilterType, DynamicImage, ImageBuffer, ImageFormat, Pixel};
-        use crate::std::{borrow::ToOwned, vec::Vec};
-
-        let size = self.size();
-
-        let pixels: crate::std::vec::Vec<u8> = self
-            .map(core::convert::Into::into)
-            .flat_map(|v| v.channels().to_owned())
-            .collect();
-
-        let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
-            ImageBuffer::from_vec(size.w.into(), size.h.into(), pixels).ok_or("Invalid size")?;
-
-        if scale == 1 {
-            buffer.save_with_format(path, ImageFormat::Png)?;
-        } else {
-            DynamicImage::from(buffer)
-                .resize(
-                    u32::from(size.w) * u32::from(scale),
-                    u32::from(size.h) * u32::from(scale),
-                    FilterType::Nearest,
-                )
-                .save_with_format(path, ImageFormat::Png)?;
-        }
-
-        Ok(())
     }
 }

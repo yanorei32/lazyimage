@@ -2,16 +2,15 @@ extern crate alloc;
 use alloc::rc::Rc;
 use core::cell::RefCell;
 use image_provider::{
+    filter::Overlay,
     interface::{FullColor, Image, Point, Size},
-    reader::{ByteIter, BitIterCap},
-    source::{
-        primitive::rect::Rect,
-        decoder::{fullcolor::FullcolorDecoder, monochrome::MonochromeDecoder, text::TextDecoder},
-    },
+    reader::{BitIterCap, ByteIter},
+    sink::Png,
+    source::{primitive::Rect, FullcolorDecoder, MonochromeDecoder, TextDecoder},
 };
 use std::{fs::File, io::Read};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bg = Rect::new(Size { w: 16, h: 9 }, FullColor::Third);
     let bg2 = Rect::new(Size { w: 12, h: 9 }, FullColor::White);
     let bg3 = Rect::new(Size { w: 2, h: 2 }, FullColor::Black);
@@ -50,5 +49,7 @@ fn main() {
         .overlay(Point { w: 3, h: 7 }, color_src)
         .unwrap();
 
-    image.png_sink("example.png", 10).unwrap();
+    image.png_sink("example.png", 10)?;
+
+    Ok(())
 }
