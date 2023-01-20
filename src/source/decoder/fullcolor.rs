@@ -54,3 +54,56 @@ where
         self.size
     }
 }
+
+#[test]
+fn fullcolor_decoder_test() {
+    use pretty_assertions::assert_eq;
+
+    let valid: Vec<bool> = [
+        [false, true],
+        [false, false],
+        [true, false],
+        [true, true],
+        [true, true],
+        [true, false],
+        [false, false],
+        [false, true],
+    ]
+    .map(|v| v.to_vec())
+    .iter()
+    .flatten()
+    .copied()
+    .collect();
+
+    let expected = [
+        Cutout::Opaque(FullColor::Black),
+        Cutout::Opaque(FullColor::White),
+        Cutout::Opaque(FullColor::Third),
+        Cutout::Cutout,
+        Cutout::Cutout,
+        Cutout::Opaque(FullColor::Third),
+        Cutout::Opaque(FullColor::White),
+        Cutout::Opaque(FullColor::Black),
+    ];
+
+    let run = |size, src: &[bool]| -> Vec<Cutout<FullColor>> {
+        FullcolorDecoder::new(size, src.iter().copied()).collect()
+    };
+
+    // don't read
+    assert_eq!(run(Size { h: 0, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 1, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 0, w: 1 }, &valid), []);
+
+    // empty input
+    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+
+    // justfit
+    assert_eq!(run(Size { h: 4, w: 2 }, &valid), &expected);
+
+    // (3 x 2) + remaining: 2
+    assert_eq!(run(Size { h: 3, w: 2 }, &valid), &expected[..6]);
+
+    // need more inputs.
+    assert_eq!(run(Size { h: 100, w: 100 }, &valid), &expected);
+}

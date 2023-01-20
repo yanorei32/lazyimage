@@ -68,7 +68,7 @@ where
     Overlay: Image<Cutout<OverlayColor>>,
     OverlayColor: Into<BaseColor> + Debug,
 {
-    fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
+    pub fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
         if pos.w + overlay.size().w > base.size().w {
             return Err(Error::HorizontalOverflowIsDetected);
         }

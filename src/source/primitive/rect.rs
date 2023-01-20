@@ -8,7 +8,7 @@ use core::iter::Iterator;
 #[derive(Debug)]
 pub struct Rect<Color>
 where
-    Color: Copy,
+    Color: Debug + Copy,
 {
     ptr: CanvasIterator,
     size: Size,
@@ -17,7 +17,7 @@ where
 
 impl<Color> Rect<Color>
 where
-    Color: Copy,
+    Color: Debug + Copy,
 {
     #[must_use]
     pub fn new(size: Size, color: Color) -> Self {
@@ -31,7 +31,7 @@ where
 
 impl<Color> Iterator for Rect<Color>
 where
-    Color: Copy,
+    Color: Debug + Copy,
 {
     type Item = Color;
     fn next(&mut self) -> Option<Self::Item> {
@@ -47,4 +47,23 @@ where
     fn size(&self) -> Size {
         self.size
     }
+}
+
+#[test]
+fn primitive_rect_test() {
+    use pretty_assertions::assert_eq;
+
+    let expected = [(), (), (), ()];
+    let run = |s| -> Vec<()> { Rect::new(s, ()).collect() };
+
+    // empty
+    assert_eq!(run(Size { h: 0, w: 0 }), &[]);
+    assert_eq!(run(Size { h: 0, w: 1 }), &[]);
+    assert_eq!(run(Size { h: 1, w: 0 }), &[]);
+
+    // 0
+    assert_eq!(run(Size { h: 1, w: 1 }), &expected[..1]);
+
+    // N
+    assert_eq!(run(Size { h: 2, w: 2 }), &expected);
 }

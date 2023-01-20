@@ -1,4 +1,4 @@
-use crate::math::{Size, Point};
+use crate::math::{Point, Size};
 use core::fmt::Debug;
 
 #[derive(Debug)]
@@ -26,6 +26,10 @@ impl Iterator for CanvasIterator {
             return None;
         }
 
+        // NOTE:
+        // If this feature is implemented in stable,
+        //   I'll use this in the future.
+        // https://github.com/rust-lang/rust/issues/43122
         self.pointer = match self.pointer {
             // if end of file
             p if p.w == 0 && p.h == self.size.h => return None,
@@ -39,4 +43,44 @@ impl Iterator for CanvasIterator {
 
         Some(current)
     }
+}
+
+#[test]
+fn canvas_iterator_test() {
+    use pretty_assertions::assert_eq;
+
+    let run = |s| -> Vec<Point> { CanvasIterator::new(s).collect() };
+
+    let expected = |s: Size| -> Vec<Point> {
+        (0..s.h)
+            .map(|h| (0..s.w).map(move |w| Point { h, w }))
+            .flatten()
+            .collect()
+    };
+
+    // size 0
+    assert_eq!(
+        run(Size { h: 0, w: 0 }),
+        expected(Size { h: 0, w: 0 }),
+    );
+    assert_eq!(
+        run(Size { h: 1, w: 0 }),
+        expected(Size { h: 1, w: 0 }),
+    );
+    assert_eq!(
+        run(Size { h: 0, w: 1 }),
+        expected(Size { h: 0, w: 1 }),
+    );
+
+    // size 1
+    assert_eq!(
+        run(Size { h: 1, w: 1 }),
+        expected(Size { h: 1, w: 1 }),
+    );
+
+    // size N
+    assert_eq!(
+        run(Size { h: 10, w: 5 }),
+        expected(Size { h: 10, w: 5 }),
+    );
 }

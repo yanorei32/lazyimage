@@ -55,3 +55,38 @@ where
         self.size
     }
 }
+
+#[test]
+fn monochrome_decoder_test() {
+    use pretty_assertions::assert_eq;
+
+    let valid = [true, false, false, true];
+
+    let expected = [
+        Cutout::Opaque(MonoColor::Black),
+        Cutout::Cutout,
+        Cutout::Cutout,
+        Cutout::Opaque(MonoColor::Black),
+    ];
+
+    let run = |size, src: &[bool]| -> Vec<Cutout<MonoColor>> {
+        MonochromeDecoder::new(size, src.iter().copied()).collect()
+    };
+
+    // don't read
+    assert_eq!(run(Size { h: 0, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 1, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 0, w: 1 }, &valid), []);
+
+    // empty input
+    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+
+    // justfit
+    assert_eq!(run(Size { h: 2, w: 2 }, &valid), &expected);
+
+    // (3 x 1) + remaining: 1
+    assert_eq!(run(Size { h: 3, w: 1 }, &valid), &expected[..3]);
+
+    // need more inputs.
+    assert_eq!(run(Size { h: 100, w: 100 }, &valid), &expected);
+}

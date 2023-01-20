@@ -53,7 +53,7 @@ where
     FromColor: Debug,
     ToColor: Debug,
 {
-    fn new(image: I, f: F) -> Self {
+    pub fn new(image: I, f: F) -> Self {
         Self {
             image,
             f,

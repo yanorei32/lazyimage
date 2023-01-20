@@ -50,3 +50,42 @@ impl Size {
         self.w == 0 || self.h == 0
     }
 }
+
+#[test]
+fn size_test() {
+    // Size { h: 1, w: 0 }
+}
+
+#[test]
+fn area_test() {
+    // w/o offset
+    for scale in 0..2 {
+        let area = Area::new(
+            Point { h: 0, w: 0 },
+            Size {
+                h: scale,
+                w: scale * 2,
+            },
+        );
+
+        for h in 0..(scale * 3) {
+            for w in 0..(scale * 3) {
+                assert_eq!(area.contains(Point { h, w }), h < scale && w < (scale * 2),);
+            }
+        }
+    }
+
+    // w/ offset
+    let pos = Point { h: 3, w: 5 };
+    let size = Size { h: 5, w: 3 };
+    let area = Area::new(pos, size);
+
+    for h in 0..20 {
+        for w in 0..20 {
+            assert_eq!(
+                area.contains(Point { h, w }),
+                3 <= h && 5 <= w && h < 8 && w < 8,
+            );
+        }
+    }
+}
