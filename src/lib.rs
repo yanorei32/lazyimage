@@ -1,17 +1,14 @@
 #![no_std]
 #![warn(clippy::pedantic)]
 
-pub mod interface;
+pub mod image;
+pub mod color;
 pub mod source;
 pub mod reader;
-pub mod utility;
+pub mod canvas;
 pub mod filter;
+pub mod math;
+pub mod error;
 
 #[cfg(feature = "sink")]
 pub mod sink;
-
-#[cfg(feature = "std")]
-pub extern crate std;
-
-#[cfg(feature = "image")]
-pub extern crate image;

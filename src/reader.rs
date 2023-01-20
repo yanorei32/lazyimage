@@ -53,18 +53,18 @@ where
     }
 }
 
-pub trait BitIterCap<T>
+pub trait BitCap<T>
 where
     T: IntoIterator<Item = u8>,
 {
-    fn bititer(self) -> BitIter<T>;
+    fn bits(self) -> BitIter<T>;
 }
 
-impl<T> BitIterCap<T> for T
+impl<T> BitCap<T> for T
 where
     T: IntoIterator<Item = u8>,
 {
-    fn bititer(self) -> BitIter<Self>
+    fn bits(self) -> BitIter<Self>
     where
         Self: Sized,
     {
@@ -85,7 +85,7 @@ impl<T> BitIter<T>
 where
     T: IntoIterator<Item = u8>,
 {
-    pub fn new(provider: T) -> Self {
+    fn new(provider: T) -> Self {
         Self {
             provider: provider.into_iter(),
             ptr: 8,

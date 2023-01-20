@@ -1,4 +1,5 @@
-use crate::interface::{Image, Size};
+use crate::image::Image;
+use crate::math::Size;
 use core::fmt::Debug;
 use core::iter::Iterator;
 use core::marker::PhantomData;
@@ -52,12 +53,39 @@ where
     FromColor: Debug,
     ToColor: Debug,
 {
-    pub(crate) fn new(image: I, f: F) -> Self {
+    fn new(image: I, f: F) -> Self {
         Self {
             image,
             f,
             from_color: PhantomData,
             to_color: PhantomData,
         }
+    }
+}
+
+pub trait Remap<I, FromColor>
+where
+    Self: Sized,
+    I: Image<FromColor>,
+    FromColor: Debug,
+{
+    fn remap<F, ToColor>(self, f: F) -> RemappedImage<I, F, FromColor, ToColor>
+    where
+        ToColor: Debug,
+        F: Fn(FromColor) -> ToColor;
+}
+
+impl<I, FromColor> Remap<I, FromColor> for I
+where
+    Self: Sized,
+    I: Image<FromColor>,
+    FromColor: Debug,
+{
+    fn remap<F, ToColor>(self, f: F) -> RemappedImage<I, F, FromColor, ToColor>
+    where
+        ToColor: Debug,
+        F: Fn(FromColor) -> ToColor,
+    {
+        RemappedImage::new(self, f)
     }
 }

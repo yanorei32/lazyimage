@@ -1,5 +1,6 @@
-use crate::interface::{Image, Size};
-use crate::utility::CanvasIterator;
+use crate::image::Image;
+use crate::math::*;
+use crate::canvas::CanvasIterator;
 use core::fmt::Debug;
 use core::iter::Iterator;
 

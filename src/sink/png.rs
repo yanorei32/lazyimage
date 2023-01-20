@@ -1,48 +1,49 @@
-use crate::interface::Image;
+use crate::image::Image;
 use core::fmt::Debug;
+
+extern crate std;
+use std::{borrow::ToOwned, boxed::Box, error::Error, path::Path, vec::Vec};
+
+extern crate image;
+use image::{imageops::FilterType, DynamicImage, ImageBuffer, ImageFormat, Pixel, Rgb};
 
 pub trait Png<I, P>
 where
     Self: Sized,
     I: Image<P> + Iterator<Item = P>,
-    P: Into<crate::image::Rgb<u8>> + Debug,
+    P: Into<Rgb<u8>> + Debug,
 {
-    fn png_sink<Q>(
-        self,
-        path: Q,
-        scale: u8,
-    ) -> Result<(), crate::std::boxed::Box<dyn crate::std::error::Error>>
+    fn png_sink<Q>(self, path: Q, scale: u8) -> Result<(), Box<dyn Error>>
     where
-        Q: AsRef<crate::std::path::Path>;
+        Q: AsRef<Path>;
 }
 
 impl<I, P> Png<I, P> for I
 where
     Self: Sized,
     I: Image<P> + Iterator<Item = P>,
-    P: Into<crate::image::Rgb<u8>> + Debug,
+    P: Into<Rgb<u8>> + Debug,
 {
     /// # Errors
-    /// image can cause error in save png
+    /// An error is returned in the following cases.
+    /// - when the PNG could not be saved by the image library.
+    /// - if the iterator returns None.
     fn png_sink<Q>(
         self,
         path: Q,
         scale: u8,
-    ) -> Result<(), crate::std::boxed::Box<dyn crate::std::error::Error>>
+    ) -> Result<(), Box<dyn Error>>
     where
-        Q: AsRef<crate::std::path::Path>,
+        Q: AsRef<Path>,
     {
-        use crate::image::{imageops::FilterType, DynamicImage, ImageBuffer, ImageFormat, Pixel};
-        use crate::std::{borrow::ToOwned, vec::Vec};
-
         let size = self.size();
 
-        let pixels: crate::std::vec::Vec<u8> = self
+        let pixels: Vec<u8> = self
             .map(core::convert::Into::into)
             .flat_map(|v| v.channels().to_owned())
             .collect();
 
-        let buffer: ImageBuffer<image::Rgb<u8>, Vec<u8>> =
+        let buffer: ImageBuffer<Rgb<u8>, Vec<u8>> =
             ImageBuffer::from_vec(size.w.into(), size.h.into(), pixels)
                 .ok_or("Invalid buffer size")?;
 

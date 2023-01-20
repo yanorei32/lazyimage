@@ -2,6 +2,7 @@ extern crate image_provider;
 
 use image_provider::{
     interface::*,
+    math::*,
     source::{primitive::Rect, FullcolorDecoder, MonochromeDecoder, TextDecoder},
 };
 use pretty_assertions::assert_eq;

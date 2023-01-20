@@ -1,5 +1,8 @@
-use crate::interface::{Cutout, Error, Image, Point, Size};
-use crate::utility::{Area, CanvasIterator};
+use crate::canvas::CanvasIterator;
+use crate::color::Cutout;
+use crate::error::Error;
+use crate::image::Image;
+use crate::math::*;
 use core::fmt::Debug;
 use core::iter::Iterator;
 use core::marker::PhantomData;

@@ -1,7 +1,7 @@
 extern crate image_provider;
 
 use pretty_assertions::assert_eq;
-use image_provider::{interface::*, utility::*};
+use image_provider::{utility::*, math::*};
 
 #[test]
 fn area_test() {

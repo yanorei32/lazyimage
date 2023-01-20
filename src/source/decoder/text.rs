@@ -1,5 +1,7 @@
-use crate::interface::{Cutout, FullColor, Image, Size};
-use crate::utility::CanvasIterator;
+use crate::canvas::CanvasIterator;
+use crate::color::{Cutout, FullColor};
+use crate::image::Image;
+use crate::math::*;
 use derivative::Derivative;
 
 #[allow(clippy::module_name_repetitions)]
