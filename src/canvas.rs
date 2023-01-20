@@ -1,4 +1,4 @@
-use crate::math::*;
+use crate::math::{Size, Point};
 use core::fmt::Debug;
 
 #[derive(Debug)]

@@ -2,7 +2,7 @@ use crate::canvas::CanvasIterator;
 use crate::color::Cutout;
 use crate::error::Error;
 use crate::image::Image;
-use crate::math::*;
+use crate::math::{Area, Point, Size};
 use core::fmt::Debug;
 use core::iter::Iterator;
 use core::marker::PhantomData;

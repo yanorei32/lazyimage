@@ -2,7 +2,7 @@ use core::cell::RefCell;
 use image_provider::{
     color::FullColor,
     filter::{Overlay, Remap},
-    math::*,
+    math::{Point, Size},
     reader::{BitCap, ByteIter},
     sink::Png,
     source::{primitive::Rect, FullcolorDecoder, MonochromeDecoder, TextDecoder},

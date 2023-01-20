@@ -1,7 +1,7 @@
 use crate::canvas::CanvasIterator;
 use crate::color::{Cutout, MonoColor};
 use crate::image::Image;
-use crate::math::*;
+use crate::math::Size;
 use derivative::Derivative;
 
 #[allow(clippy::module_name_repetitions)]
