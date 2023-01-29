@@ -53,6 +53,7 @@ where
     }
 }
 
+/// A bit iterator cap for the [`Iterator`] of [`u8`].
 pub trait BitCap<T>
 where
     T: IntoIterator<Item = u8>,

@@ -118,3 +118,74 @@ where
         OverlayedImage::new(self, pos, overlay)
     }
 }
+
+#[test]
+fn overlayed_image_test() {
+    use crate::source::Rect;
+    use crate::CanvasIterator;
+    use core::iter::zip;
+    use pretty_assertions::assert_eq;
+
+    let run = |pos, add| -> Vec<i64> {
+        OverlayedImage::new(Rect::new(Size::new(4, 3), 0), pos, add)
+            .unwrap()
+            .collect()
+    };
+
+    let expected = |pos, add: Rect<Cutout<i64>>| -> Vec<i64> {
+        let mut pixels: Vec<i64> = Rect::new(Size::new(4, 3), 0).collect();
+
+        let canvas = CanvasIterator::new(add.size()).map(|v| v + pos);
+
+        for (pos, pixel) in zip(canvas, add) {
+            match pixel {
+                Cutout::Cutout => {}
+                Cutout::Opaque(v) => pixels[usize::from(pos.h * 4 + pos.w)] = v,
+            }
+        }
+
+        pixels
+    };
+
+    // Basic cutout test
+    assert_eq!(
+        run(Point::new(0, 0), Rect::new(Size::new(4, 3), Cutout::Cutout)),
+        expected(Point::new(0, 0), Rect::new(Size::new(4, 3), Cutout::Cutout)),
+    );
+
+    // Basic opaque test
+    assert_eq!(
+        run(
+            Point::new(0, 0),
+            Rect::new(Size::new(4, 3), Cutout::Opaque(1))
+        ),
+        expected(
+            Point::new(0, 0),
+            Rect::new(Size::new(4, 3), Cutout::Opaque(1))
+        ),
+    );
+
+    // opaque test
+    assert_eq!(
+        run(
+            Point::new(1, 1),
+            Rect::new(Size::new(1, 1), Cutout::Opaque(1))
+        ),
+        expected(
+            Point::new(1, 1),
+            Rect::new(Size::new(1, 1), Cutout::Opaque(1))
+        ),
+    );
+
+    // zerosize test
+    assert_eq!(
+        run(
+            Point::new(1, 1),
+            Rect::new(Size::new(0, 0), Cutout::Opaque(1))
+        ),
+        expected(
+            Point::new(1, 1),
+            Rect::new(Size::new(0, 0), Cutout::Opaque(1))
+        ),
+    );
+}

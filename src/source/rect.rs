@@ -1,9 +1,10 @@
 use crate::canvas::CanvasIterator;
-use crate::image::Image;
 use crate::math::Size;
+use crate::image::Image;
 use core::fmt::Debug;
 use core::iter::Iterator;
 
+/// Primitive Rect
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct Rect<Color>
@@ -50,7 +51,7 @@ where
 }
 
 #[test]
-fn primitive_rect_test() {
+fn rect_test() {
     use pretty_assertions::assert_eq;
 
     let expected = [(), (), (), ()];

@@ -1,0 +1,114 @@
+use crate::canvas::CanvasIterator;
+use crate::image::Image;
+use crate::math::Size;
+use core::fmt::Debug;
+use derivative::Derivative;
+
+#[allow(clippy::module_name_repetitions)]
+#[derive(Derivative)]
+#[derivative(Debug)]
+pub struct TextDecoder<P, F, Color>
+where
+    P: Iterator<Item = u8>,
+    F: Fn(u8) -> Option<Color>,
+    Color: Debug,
+{
+    ptr: CanvasIterator,
+    size: Size,
+    #[derivative(Debug = "ignore")]
+    mapper: F,
+    #[derivative(Debug = "ignore")]
+    provider: P,
+}
+
+impl<P, F, Color> TextDecoder<P, F, Color>
+where
+    P: Iterator<Item = u8>,
+    F: Fn(u8) -> Option<Color>,
+    Color: Debug,
+{
+    pub fn new(provider: P, size: Size, mapper: F) -> Self {
+        Self {
+            ptr: CanvasIterator::new(size),
+            size,
+            provider,
+            mapper,
+        }
+    }
+}
+
+impl<P, F, Color> Iterator for TextDecoder<P, F, Color>
+where
+    P: Iterator<Item = u8>,
+    F: Fn(u8) -> Option<Color>,
+    Color: Debug,
+{
+    type Item = Color;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.ptr.next()?;
+
+        loop {
+            match (self.mapper)(self.provider.next()?) {
+                Some(v) => return Some(v),
+                None => continue,
+            }
+        }
+    }
+}
+
+impl<P, F, Color> Image<Color> for TextDecoder<P, F, Color>
+where
+    P: Iterator<Item = u8>,
+    F: Fn(u8) -> Option<Color>,
+    Color: Debug,
+{
+    fn size(&self) -> Size {
+        self.size
+    }
+}
+
+#[test]
+fn textdecoder_test() {
+    use pretty_assertions::assert_eq;
+
+    #[derive(Debug, Copy, Clone, PartialEq)]
+    enum C {
+        Blank,
+        Black,
+        Red,
+    }
+
+    let valid = "RB RB ".as_bytes();
+    let valid_with_trash = "RB \r\nRB \r\n".as_bytes();
+    let expected = [C::Red, C::Black, C::Blank, C::Red, C::Black, C::Blank];
+
+    let run = |size, src: &[u8]| -> Vec<C> {
+        TextDecoder::new(src.iter().copied(), size, |v| match v {
+            b'R' => Some(C::Red),
+            b'B' => Some(C::Black),
+            b' ' => Some(C::Blank),
+            _ => None,
+        })
+        .collect()
+    };
+
+    // don't read
+    assert_eq!(run(Size { h: 0, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 1, w: 0 }, &valid), []);
+    assert_eq!(run(Size { h: 0, w: 1 }, &valid), []);
+
+    // empty input
+    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+
+    // justfit
+    assert_eq!(run(Size { h: 3, w: 2 }, &valid), expected);
+
+    // with trash
+    assert_eq!(run(Size { h: 3, w: 2 }, &valid_with_trash), expected);
+
+    // (3 x 2) + remaining: 2
+    assert_eq!(run(Size { h: 2, w: 2 }, &valid), &expected[..4]);
+
+    // need more inputs.
+    assert_eq!(run(Size { h: 100, w: 100 }, &valid), expected);
+}

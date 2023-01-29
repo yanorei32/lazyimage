@@ -1,6 +1,7 @@
 use crate::math::{Point, Size};
 use core::fmt::Debug;
 
+/// A helper for implements Image.
 #[derive(Debug)]
 pub struct CanvasIterator {
     size: Size,

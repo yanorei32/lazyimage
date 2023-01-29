@@ -1,20 +1,26 @@
 use core::{fmt::Debug, ops::Range};
+use core::ops::{Add, Sub};
 
+/// It provides [`Area::contains`] from [`Point`] and [`Size`].
 #[derive(Debug, Clone)]
 pub struct Area {
     w: Range<u16>,
     h: Range<u16>,
 }
 
+/// It contians `w` and `h` in [`u16`]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Point {
     pub w: u16,
     pub h: u16,
 }
 
+/// It contians `w` and `h` in [`u16`]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Size {
+    /// The widhth of [`Size`]
     pub w: u16,
+    /// The height of [`Size`]
     pub h: u16,
 }
 
@@ -40,12 +46,37 @@ impl Point {
     }
 }
 
+impl Add for Point {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            w: self.w + rhs.w,
+            h: self.h + rhs.h,
+        }
+    }
+}
+
+impl Sub for Point {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            w: self.w - rhs.w,
+            h: self.h - rhs.h,
+        }
+    }
+}
+
 impl Size {
     #[must_use]
     pub fn new(w: u16, h: u16) -> Self {
         Self { w, h }
     }
 
+    /// ```rust
+    /// use lazyimage::math::Size;
+    /// assert_eq!(Size::new(16, 9).is_zero(), false);
+    /// assert_eq!(Size::new(16, 0).is_zero(), true);
+    /// ```
     pub fn is_zero(self) -> bool {
         self.w == 0 || self.h == 0
     }
@@ -53,7 +84,10 @@ impl Size {
 
 #[test]
 fn size_test() {
-    // Size { h: 1, w: 0 }
+    assert_eq!(Size::new(0, 0).is_zero(), true);
+    assert_eq!(Size::new(1, 0).is_zero(), true);
+    assert_eq!(Size::new(0, 1).is_zero(), true);
+    assert_eq!(Size::new(1, 1).is_zero(), false);
 }
 
 #[test]
@@ -88,4 +122,14 @@ fn area_test() {
             );
         }
     }
+}
+
+#[test]
+fn point_test() {
+    let zero = Point::new(0, 0);
+    let one_zero = Point::new(1, 0);
+    let zero_one = Point::new(0, 1);
+    let one_one = Point::new(1, 1);
+    assert_eq!((one_zero + zero_one), one_one);
+    assert_eq!((one_zero + zero_one) - one_one, zero);
 }

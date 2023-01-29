@@ -1,13 +1,12 @@
-use core::cell::RefCell;
-use image_provider::{
-    color::FullColor,
+use lazyimage::{
+    decoder::{NbitDecoder, TextDecoder},
     filter::{Overlay, Remap},
     math::{Point, Size},
     reader::{BitCap, ByteIter},
     sink::Png,
-    source::{primitive::Rect, FullcolorDecoder, MonochromeDecoder, TextDecoder},
+    source::Rect,
 };
-use std::{fs::File, io::Read, rc::Rc, error::Error};
+use std::{cell::RefCell, error::Error, fs::File, io::Read, rc::Rc};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let bg = Rect::new(Size::new(16, 9), FullColor::Third);

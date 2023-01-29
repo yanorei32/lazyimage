@@ -105,7 +105,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "image-provider"
+name = "lazyimage"
 version = "0.1.0"
 dependencies = [
  "derivative",
