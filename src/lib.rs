@@ -7,13 +7,8 @@
 //! for low-memory embedded targets (likes STM32).
 //!
 //! # Todo
-//! - Make the [`Image::size`] static.
-//!   - Make the [`filter::Overlay::overlay`]'s width check in compilation time.
 //! - Implement `filter::JoinRight`.
-//! - Add `decode_cutout(Size, Color)` to [`Iterator`]`<Item = bool>`
-//! - Add `decode_tricolor(Size)` to [`Iterator`]`<Item = bool>`
-//! - Add `decode_text(Size)` to [`Iterator`]`<Item = u8>`
-
+//! - move BitCap / ByteCap to itertool
 
 mod image;
 pub use crate::image::Image;
@@ -41,6 +36,9 @@ pub mod math;
 
 /// The deocder is built from [`Iterator`] and provides [`Image`].
 pub mod decoder;
+
+/// The encoder is built from [`Image`] and provides [`Iterator<u8>`].
+pub mod encoder;
 
 /// The sink for debugging.
 #[cfg(feature = "sink")]

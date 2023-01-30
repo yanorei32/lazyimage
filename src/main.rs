@@ -1,45 +1,46 @@
 use lazyimage::{
     decoder::{NbitDecoder, TextDecoder},
-    filter::{Overlay, Remap},
-    math::{Point, Size},
+    encoder::{ByteCap, NbitEncoder},
+    math::Size,
     reader::{BitCap, ByteIter},
-    sink::Png,
     source::Rect,
 };
+use std::io::prelude::*;
 use std::{cell::RefCell, error::Error, fs::File, io::Read, rc::Rc};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let bg = Rect::new(Size::new(16, 9), FullColor::Third);
-    let bg2 = Rect::new(Size::new(12, 9), FullColor::White);
-    let bg3 = Rect::new(Size { w: 2, h: 2 }, FullColor::Black);
+    #[derive(Debug, Copy, Clone)]
+    #[repr(u8)]
+    enum Color {
+        Black = 0,
+        Gray1 = 1,
+        Gray2 = 2,
+        White = 3,
+        Red0 = 4,
+        Red1 = 5,
+        Red2 = 6,
+        Red3 = 7,
+    }
 
-    let txt = Rc::new(RefCell::new(File::open("example.txt")?));
-    let txt_clousure = Rc::clone(&txt);
-    let txt_iter: ByteIter<_, 16> =
-        ByteIter::new(move |buf| txt_clousure.borrow_mut().read(buf).ok());
-    let txt_src = TextDecoder::new(Size { w: 5, h: 5 }, txt_iter);
+    let bg = Rect::new(Size::new(640, 384), Color::Gray1);
+    let encoder: NbitEncoder<_, _, _, 3> = NbitEncoder::new(bg, |c| c as u8);
+    let bytecap: Vec<u8> = ByteCap::new(encoder).collect();
+    let mut file = File::create("test.bin")?;
+    file.write_all(&bytecap)?;
 
-    let mono = Rc::new(RefCell::new(File::open("example.monochrome")?));
-    let mono_clousure = Rc::clone(&mono);
-    let mono_iter: ByteIter<_, 16> =
-        ByteIter::new(move |buf| mono_clousure.borrow_mut().read(buf).ok());
-    let mono_src = MonochromeDecoder::new(Size { w: 2, h: 2 }, mono_iter.bits());
+    let bin = Rc::new(RefCell::new(File::open("test.bin")?));
+    let bin_ = Rc::clone(&bin);
+    let iter: ByteIter<_, 16> = ByteIter::new(move |buf| bin_.borrow_mut().read(buf).ok());
 
-    let color = Rc::new(RefCell::new(File::open("example.fullcolor")?));
-    let color_clousure = Rc::clone(&color);
-    let color_iter: ByteIter<_, 16> =
-        ByteIter::new(move |buf| color_clousure.borrow_mut().read(buf).ok());
-    let color_src = FullcolorDecoder::new(Size { w: 2, h: 2 }, color_iter.bits());
+    let decoder: NbitDecoder<_, _, _, 3> =
+        NbitDecoder::new(iter.bits(), Size::new(640, 384), |v| unsafe {
+            let c: Color = core::mem::transmute(v);
+            c
+        });
 
-    bg.overlay(Point { w: 2, h: 2 }, bg2.remap(|v| v.into()))
-        .unwrap()
-        .overlay(Point { w: 3, h: 3 }, bg3.remap(|v| v.into()))
-        .unwrap()
-        .overlay(Point { w: 11, h: 4 }, txt_src)
-        .unwrap()
-        .overlay(Point { w: 0, h: 0 }, mono_src)
-        .unwrap()
-        .overlay(Point { w: 3, h: 7 }, color_src)
-        .unwrap()
-        .png_sink("example.png", 10)
+    let x: Vec<Color> = decoder.collect();
+
+    println!("{:?}", x);
+
+    Ok(())
 }
