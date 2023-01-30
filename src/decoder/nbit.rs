@@ -73,7 +73,11 @@ pub trait NbitDecode<T>
 where
     T: Iterator<Item = bool>,
 {
-    fn nbit_decode<F, Color, const BIT_WIDTH: usize>(self, size: Size, mapper: F) -> NbitDecoder<T, F, Color, BIT_WIDTH>
+    fn nbit_decode<F, Color, const BIT_WIDTH: usize>(
+        self,
+        size: Size,
+        mapper: F,
+    ) -> NbitDecoder<T, F, Color, BIT_WIDTH>
     where
         F: Fn(u8) -> Color,
         Color: Debug;
@@ -83,17 +87,22 @@ impl<T> NbitDecode<T> for T
 where
     T: Iterator<Item = bool>,
 {
-    fn nbit_decode<F, Color, const BIT_WIDTH: usize>(self, size: Size, mapper: F) -> NbitDecoder<T, F, Color, BIT_WIDTH>
+    fn nbit_decode<F, Color, const BIT_WIDTH: usize>(
+        self,
+        size: Size,
+        mapper: F,
+    ) -> NbitDecoder<T, F, Color, BIT_WIDTH>
     where
         F: Fn(u8) -> Color,
-        Color: Debug {
+        Color: Debug,
+    {
         NbitDecoder::new(self, size, mapper)
     }
 }
 
 #[test]
 fn nbitdecoder_1bit_test() {
-    use crate::reader::BitCap;
+    use crate::iohelper::BitIterCap;
     use pretty_assertions::assert_eq;
 
     let input = [0b0101 as u8];
@@ -107,11 +116,12 @@ fn nbitdecoder_1bit_test() {
     let expected = [C::Black, C::Blank, C::Black, C::Blank];
 
     let run = |size, src: &[u8]| -> Vec<C> {
-        let d: NbitDecoder<_, _, _, 1> = NbitDecoder::new(src.to_vec().bits(), size, |v| match v {
-            0 => C::Blank,
-            1 => C::Black,
-            _ => unreachable!(),
-        });
+        let d: NbitDecoder<_, _, _, 1> =
+            NbitDecoder::new(src.to_vec().into_bit_iter(), size, |v| match v {
+                0 => C::Blank,
+                1 => C::Black,
+                _ => unreachable!(),
+            });
 
         d.collect()
     };
@@ -137,7 +147,7 @@ fn nbitdecoder_1bit_test() {
 #[test]
 fn nbitdecoder_2bit_test() {
     use crate::color::Cutout;
-    use crate::reader::BitCap;
+    use crate::iohelper::BitIterCap;
     use pretty_assertions::assert_eq;
 
     let input = [0b11_10_01_00 as u8];
@@ -157,13 +167,14 @@ fn nbitdecoder_2bit_test() {
     ];
 
     let run = |size, src: &[u8]| -> Vec<Cutout<C>> {
-        let d: NbitDecoder<_, _, _, 2> = NbitDecoder::new(src.to_vec().bits(), size, |v| match v {
-            0 => Cutout::Cutout,
-            1 => Cutout::Opaque(C::Blank),
-            2 => Cutout::Opaque(C::Black),
-            3 => Cutout::Opaque(C::Red),
-            _ => unreachable!(),
-        });
+        let d: NbitDecoder<_, _, _, 2> =
+            NbitDecoder::new(src.to_vec().into_bit_iter(), size, |v| match v {
+                0 => Cutout::Cutout,
+                1 => Cutout::Opaque(C::Blank),
+                2 => Cutout::Opaque(C::Black),
+                3 => Cutout::Opaque(C::Red),
+                _ => unreachable!(),
+            });
 
         d.collect()
     };

@@ -1,8 +1,8 @@
 use lazyimage::{
-    decoder::{NbitDecoder, TextDecoder},
-    encoder::{ByteCap, NbitEncoder},
+    decoder::NbitDecoder,
+    encoder::NbitEncoder,
+    iohelper::{BitIterCap, ByteIterCap, ReadAsIter},
     math::Size,
-    reader::{BitCap, ByteIter},
     source::Rect,
 };
 use std::io::prelude::*;
@@ -24,16 +24,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let bg = Rect::new(Size::new(640, 384), Color::Gray1);
     let encoder: NbitEncoder<_, _, _, 3> = NbitEncoder::new(bg, |c| c as u8);
-    let bytecap: Vec<u8> = ByteCap::new(encoder).collect();
+    let bytecap: Vec<u8> = encoder.into_byte_iter().collect();
     let mut file = File::create("test.bin")?;
     file.write_all(&bytecap)?;
 
     let bin = Rc::new(RefCell::new(File::open("test.bin")?));
     let bin_ = Rc::clone(&bin);
-    let iter: ByteIter<_, 16> = ByteIter::new(move |buf| bin_.borrow_mut().read(buf).ok());
+    let iter: ReadAsIter<_, 16> = ReadAsIter::new(move |buf| bin_.borrow_mut().read(buf).ok());
 
     let decoder: NbitDecoder<_, _, _, 3> =
-        NbitDecoder::new(iter.bits(), Size::new(640, 384), |v| unsafe {
+        NbitDecoder::new(iter.into_bit_iter(), Size::new(640, 384), |v| unsafe {
             let c: Color = core::mem::transmute(v);
             c
         });

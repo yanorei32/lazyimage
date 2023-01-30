@@ -8,7 +8,6 @@
 //!
 //! # Todo
 //! - Implement `filter::JoinRight`.
-//! - move BitCap / ByteCap to itertool
 
 mod image;
 pub use crate::image::Image;
@@ -19,8 +18,8 @@ pub use canvas::CanvasIterator;
 mod error;
 pub use error::Error;
 
-/// The reader is built from callback function and provides [`Iterator`]`<Item = `[`bool`] or [`u8`]`>`.
-pub mod reader;
+/// The minimum I/O helper for this crate.
+pub mod iohelper;
 
 /// The filter is built from [`Image`] (s) and provides [`Image`].
 pub mod filter;
