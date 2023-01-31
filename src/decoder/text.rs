@@ -78,8 +78,8 @@ fn textdecoder_test() {
         Red,
     }
 
-    let valid = "RB RB ".as_bytes();
-    let valid_with_trash = "RB \r\nRB \r\n".as_bytes();
+    let valid = b"RB RB ";
+    let valid_with_trash = b"RB \r\nRB \r\n";
     let expected = [C::Red, C::Black, C::Blank, C::Red, C::Black, C::Blank];
 
     let run = |size, src: &[u8]| -> Vec<C> {
