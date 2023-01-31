@@ -23,7 +23,7 @@ where
 
 impl<P, F, Color> TextDecoder<P, F, Color>
 where
-    P: Iterator<Item = u8>,
+    P: IntoIterator<Item = u8>,
     F: Fn(u8) -> Option<Color>,
     Color: Debug,
 {
@@ -39,7 +39,7 @@ where
 
 impl<P, F, Color> Iterator for TextDecoder<P, F, Color>
 where
-    P: Iterator<Item = u8>,
+    P: IntoIterator<Item = u8>,
     F: Fn(u8) -> Option<Color>,
     Color: Debug,
 {
@@ -58,7 +58,7 @@ where
 
 impl<P, F, Color> Image<Color> for TextDecoder<P, F, Color>
 where
-    P: Iterator<Item = u8>,
+    P: IntoIterator<Item = u8>,
     F: Fn(u8) -> Option<Color>,
     Color: Debug,
 {
