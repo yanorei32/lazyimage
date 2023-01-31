@@ -61,8 +61,8 @@ fn read_as_iter_test() {
     fn run<const PROBE_SIZE: usize>(src: &[u8]) -> Vec<u8> {
         let mut reader = Cursor::new(src);
 
-        let r: ReadAsIter<_, PROBE_SIZE> = ReadAsIter::new(|mut buf| {
-            reader.read(&mut buf).ok()
+        let r: ReadAsIter<_, PROBE_SIZE> = ReadAsIter::new(|buf| {
+            reader.read(buf).ok()
         });
 
         r.collect()

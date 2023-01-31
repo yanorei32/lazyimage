@@ -3,6 +3,7 @@ use core::fmt::Debug;
 
 /// A helper for implements Image.
 #[derive(Debug)]
+#[allow(clippy::module_name_repetitions)]
 pub struct CanvasIterator {
     size: Size,
     pointer: Point,
@@ -13,7 +14,7 @@ impl CanvasIterator {
     pub fn new(size: Size) -> Self {
         Self {
             size,
-            pointer: Point { w: 0, h: 0 },
+            pointer: Point::new(0, 0),
         }
     }
 }
@@ -36,10 +37,10 @@ impl Iterator for CanvasIterator {
             p if p.w == 0 && p.h == self.size.h => return None,
 
             // if end of line
-            p if p.w == self.size.w - 1 => Point { w: 0, h: p.h + 1 },
+            p if p.w == self.size.w - 1 => Point::new(0, p.h + 1),
 
             // otherwise
-            p => Point { w: p.w + 1, h: p.h },
+            p => Point::new(p.w + 1, p.h),
         };
 
         Some(current)
@@ -54,34 +55,18 @@ fn canvas_iterator_test() {
 
     let expected = |s: Size| -> Vec<Point> {
         (0..s.h)
-            .map(|h| (0..s.w).map(move |w| Point { h, w }))
-            .flatten()
+            .flat_map(|h| (0..s.w).map(move |w| Point::new(w, h)))
             .collect()
     };
 
     // size 0
-    assert_eq!(
-        run(Size { h: 0, w: 0 }),
-        expected(Size { h: 0, w: 0 }),
-    );
-    assert_eq!(
-        run(Size { h: 1, w: 0 }),
-        expected(Size { h: 1, w: 0 }),
-    );
-    assert_eq!(
-        run(Size { h: 0, w: 1 }),
-        expected(Size { h: 0, w: 1 }),
-    );
+    assert_eq!(run(Size::new(0, 0)), expected(Size::new(0, 0)));
+    assert_eq!(run(Size::new(1, 0)), expected(Size::new(1, 0)));
+    assert_eq!(run(Size::new(0, 1)), expected(Size::new(0, 1)));
 
     // size 1
-    assert_eq!(
-        run(Size { h: 1, w: 1 }),
-        expected(Size { h: 1, w: 1 }),
-    );
+    assert_eq!(run(Size::new(1, 1)), expected(Size::new(1, 1)));
 
     // size N
-    assert_eq!(
-        run(Size { h: 10, w: 5 }),
-        expected(Size { h: 10, w: 5 }),
-    );
+    assert_eq!(run(Size::new(10, 5)), expected(Size::new(10, 5)));
 }

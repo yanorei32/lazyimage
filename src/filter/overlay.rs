@@ -68,6 +68,10 @@ where
     Overlay: Image<Cutout<OverlayColor>>,
     OverlayColor: Into<BaseColor> + Debug,
 {
+    /// Provide overlayed image
+    ///
+    /// # Errors
+    /// If overlayed image is overflowed, throws [`Error::HorizontalOverflowIsDetected`]
     pub fn new(base: Base, pos: Point, overlay: Overlay) -> Result<Self, Error> {
         if pos.w + overlay.size().w > base.size().w {
             return Err(Error::HorizontalOverflowIsDetected);
@@ -90,6 +94,10 @@ where
     I: Image<P> + Iterator<Item = P>,
     P: Debug,
 {
+    /// Provide overlayed image
+    ///
+    /// # Errors
+    /// If overlayed image is overflowed, throws [`Error::HorizontalOverflowIsDetected`]
     fn overlay<Overlay, OverlayColor>(
         self,
         pos: Point,

@@ -69,6 +69,7 @@ where
 }
 
 /// A bit iterator cap for the [`Iterator`] of [`u8`].
+#[allow(clippy::module_name_repetitions)]
 pub trait NbitDecode<T>
 where
     T: Iterator<Item = bool>,
@@ -105,13 +106,13 @@ fn nbitdecoder_1bit_test() {
     use crate::iohelper::BitIterCap;
     use pretty_assertions::assert_eq;
 
-    let input = [0b0101 as u8];
-
     #[derive(Debug, Copy, Clone, PartialEq)]
     enum C {
         Blank,
         Black,
     }
+
+    let input = [0b0101_u8];
 
     let expected = [C::Black, C::Blank, C::Black, C::Blank];
 
@@ -127,21 +128,21 @@ fn nbitdecoder_1bit_test() {
     };
 
     // don't read
-    assert_eq!(run(Size { h: 0, w: 0 }, &input), []);
-    assert_eq!(run(Size { h: 1, w: 0 }, &input), []);
-    assert_eq!(run(Size { h: 0, w: 1 }, &input), []);
+    assert_eq!(run(Size::new(0, 0), &input), []);
+    assert_eq!(run(Size::new(1, 0), &input), []);
+    assert_eq!(run(Size::new(0, 1), &input), []);
 
     // empty input
-    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+    assert_eq!(run(Size::new(1, 1), &[]), []);
 
     // justfit
-    assert_eq!(run(Size { h: 2, w: 2 }, &input), expected);
+    assert_eq!(run(Size::new(2, 2), &input), expected);
 
     // non 1:1 aspect ratio
-    assert_eq!(run(Size { h: 1, w: 4 }, &input), expected);
+    assert_eq!(run(Size::new(1, 4), &input), expected);
 
     // (1 x 3) + remaining: 1
-    assert_eq!(run(Size { h: 1, w: 3 }, &input), &expected[..3]);
+    assert_eq!(run(Size::new(1, 3), &input), &expected[..3]);
 }
 
 #[test]
@@ -150,14 +151,14 @@ fn nbitdecoder_2bit_test() {
     use crate::iohelper::BitIterCap;
     use pretty_assertions::assert_eq;
 
-    let input = [0b11_10_01_00 as u8];
-
     #[derive(Debug, Copy, Clone, PartialEq)]
     enum C {
         Blank,
         Black,
         Red,
     }
+
+    let input = [0b11_10_01_00_u8];
 
     let expected = [
         Cutout::Cutout,
@@ -180,19 +181,19 @@ fn nbitdecoder_2bit_test() {
     };
 
     // don't read
-    assert_eq!(run(Size { h: 0, w: 0 }, &input), []);
-    assert_eq!(run(Size { h: 1, w: 0 }, &input), []);
-    assert_eq!(run(Size { h: 0, w: 1 }, &input), []);
+    assert_eq!(run(Size::new(0, 0), &input), []);
+    assert_eq!(run(Size::new(1, 0), &input), []);
+    assert_eq!(run(Size::new(0, 1), &input), []);
 
     // empty input
-    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+    assert_eq!(run(Size::new(1, 1), &[]), []);
 
     // justfit
-    assert_eq!(run(Size { h: 2, w: 2 }, &input), expected);
+    assert_eq!(run(Size::new(2, 2), &input), expected);
 
     // non 1:1 aspect ratio
-    assert_eq!(run(Size { h: 1, w: 4 }, &input), expected);
+    assert_eq!(run(Size::new(1, 4), &input), expected);
 
     // (1 x 3) + remaining: 1
-    assert_eq!(run(Size { h: 1, w: 3 }, &input), &expected[..3]);
+    assert_eq!(run(Size::new(1, 3), &input), &expected[..3]);
 }

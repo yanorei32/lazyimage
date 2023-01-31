@@ -1,6 +1,6 @@
 use crate::canvas::CanvasIterator;
-use crate::math::Size;
 use crate::image::Image;
+use crate::math::Size;
 use core::fmt::Debug;
 use core::iter::Iterator;
 
@@ -58,13 +58,13 @@ fn rect_test() {
     let run = |s| -> Vec<()> { Rect::new(s, ()).collect() };
 
     // empty
-    assert_eq!(run(Size { h: 0, w: 0 }), &[]);
-    assert_eq!(run(Size { h: 0, w: 1 }), &[]);
-    assert_eq!(run(Size { h: 1, w: 0 }), &[]);
+    assert_eq!(run(Size::new(0, 0)), &[]);
+    assert_eq!(run(Size::new(0, 1)), &[]);
+    assert_eq!(run(Size::new(1, 0)), &[]);
 
     // 0
-    assert_eq!(run(Size { h: 1, w: 1 }), &expected[..1]);
+    assert_eq!(run(Size::new(1, 1)), &expected[..1]);
 
     // N
-    assert_eq!(run(Size { h: 2, w: 2 }), &expected);
+    assert_eq!(run(Size::new(2, 2)), &expected);
 }

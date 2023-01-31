@@ -36,7 +36,10 @@ pub mod math;
 /// The deocder is built from [`Iterator`] and provides [`Image`].
 pub mod decoder;
 
-/// The encoder is built from [`Image`] and provides [`Iterator<u8>`].
+/// The encoder is built from [`Iterator<Color>`] and provides [`Iterator<bool>`].
+///
+/// If you need [`Iterator<u8>`] or more bytes, you can use the [`filter::Remap::remap`] or
+/// [`Iterator::map`].
 pub mod encoder;
 
 /// The sink for debugging.

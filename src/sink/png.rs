@@ -13,6 +13,10 @@ where
     I: Image<P> + Iterator<Item = P>,
     P: Into<Rgb<u8>> + Debug,
 {
+    /// # Errors
+    /// An error is returned in the following cases.
+    /// - when the PNG could not be saved by the image library.
+    /// - if the iterator returns None.
     fn png_sink<Q>(self, path: Q, scale: u8) -> Result<(), Box<dyn Error>>
     where
         Q: AsRef<Path>;
@@ -24,10 +28,6 @@ where
     I: Image<P> + Iterator<Item = P>,
     P: Into<Rgb<u8>> + Debug,
 {
-    /// # Errors
-    /// An error is returned in the following cases.
-    /// - when the PNG could not be saved by the image library.
-    /// - if the iterator returns None.
     fn png_sink<Q>(
         self,
         path: Q,

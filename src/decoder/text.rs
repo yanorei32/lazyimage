@@ -93,22 +93,22 @@ fn textdecoder_test() {
     };
 
     // don't read
-    assert_eq!(run(Size { h: 0, w: 0 }, &valid), []);
-    assert_eq!(run(Size { h: 1, w: 0 }, &valid), []);
-    assert_eq!(run(Size { h: 0, w: 1 }, &valid), []);
+    assert_eq!(run(Size::new(0, 0), valid), []);
+    assert_eq!(run(Size::new(1, 0), valid), []);
+    assert_eq!(run(Size::new(0, 1), valid), []);
 
     // empty input
-    assert_eq!(run(Size { h: 1, w: 1 }, &[]), []);
+    assert_eq!(run(Size::new(1, 1), &[]), []);
 
     // justfit
-    assert_eq!(run(Size { h: 3, w: 2 }, &valid), expected);
+    assert_eq!(run(Size::new(3, 2), valid), expected);
 
     // with trash
-    assert_eq!(run(Size { h: 3, w: 2 }, &valid_with_trash), expected);
+    assert_eq!(run(Size::new(3, 2), valid_with_trash), expected);
 
     // (3 x 2) + remaining: 2
-    assert_eq!(run(Size { h: 2, w: 2 }, &valid), &expected[..4]);
+    assert_eq!(run(Size::new(2, 2), valid), &expected[..4]);
 
     // need more inputs.
-    assert_eq!(run(Size { h: 100, w: 100 }, &valid), expected);
+    assert_eq!(run(Size::new(100, 100), valid), expected);
 }

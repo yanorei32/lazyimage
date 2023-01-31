@@ -5,7 +5,7 @@ use derivative::Derivative;
 #[allow(clippy::module_name_repetitions)]
 #[derive(Derivative)]
 #[derivative(Debug)]
-pub struct NbitEncoder<I, F, Color, const BIT_WIDTH: usize = 1>
+pub struct NbitEncoder<I, F, Color, const BIT_WIDTH: u8 = 1>
 where
     I: Iterator<Item = Color>,
     F: Fn(Color) -> u8,
@@ -18,7 +18,7 @@ where
     color_t: PhantomData<Color>,
 }
 
-impl<I, F, Color, const BIT_WIDTH: usize> NbitEncoder<I, F, Color, BIT_WIDTH>
+impl<I, F, Color, const BIT_WIDTH: u8> NbitEncoder<I, F, Color, BIT_WIDTH>
 where
     I: Iterator<Item = Color>,
     F: Fn(Color) -> u8,
@@ -35,21 +35,22 @@ where
     }
 }
 
-impl<I, F, Color, const BIT_WIDTH: usize> Iterator for NbitEncoder<I, F, Color, BIT_WIDTH>
+impl<I, F, Color, const BIT_WIDTH: u8> Iterator for NbitEncoder<I, F, Color, BIT_WIDTH>
 where
     I: Iterator<Item = Color>,
     F: Fn(Color) -> u8,
     Color: Debug,
 {
     type Item = bool;
+
     fn next(&mut self) -> Option<Self::Item> {
         if self.remaining == 0 {
             self.buffer = (self.mapper)(self.image.next()?);
-            self.remaining = BIT_WIDTH as u8;
+            self.remaining = BIT_WIDTH;
         }
 
         self.remaining -= 1;
-        Some(self.buffer & (1 << (BIT_WIDTH as u8 - 1 - self.remaining)) != 0)
+        Some(self.buffer & (1 << (BIT_WIDTH - 1 - self.remaining)) != 0)
     }
 }
 
@@ -65,10 +66,10 @@ fn nbitencoder_1bit_test() {
     }
 
     let input = [C::Black, C::Blank, C::Black, C::Blank];
-    let expected = [0b0101 as u8];
+    let expected = [0b0101_u8];
 
     let run = |src: &[C]| -> Vec<u8> {
-        let e: NbitEncoder<_, _, _, 1> = NbitEncoder::new(src.into_iter(), |v| match v {
+        let e: NbitEncoder<_, _, _, 1> = NbitEncoder::new(src.iter(), |v| match v {
             C::Blank => 0,
             C::Black => 1,
         });
@@ -97,10 +98,10 @@ fn nbitencoder_2bit_test() {
     }
 
     let input = [C::C0, C::C1, C::C2, C::C3];
-    let expected = [0b11_10_01_00 as u8];
+    let expected = [0b11_10_01_00_u8];
 
     let run = |src: &[C]| -> Vec<u8> {
-        let e: NbitEncoder<_, _, _, 2> = NbitEncoder::new(src.into_iter(), |v| match v {
+        let e: NbitEncoder<_, _, _, 2> = NbitEncoder::new(src.iter(), |v| match v {
             C::C0 => 0,
             C::C1 => 1,
             C::C2 => 2,
