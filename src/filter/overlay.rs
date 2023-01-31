@@ -91,7 +91,7 @@ where
 pub trait Overlay<I, P>
 where
     Self: Sized,
-    I: Image<P> + Iterator<Item = P>,
+    I: Image<P>,
     P: Debug,
 {
     /// Provide overlayed image
@@ -111,7 +111,7 @@ where
 impl<I, P> Overlay<I, P> for I
 where
     Self: Sized,
-    I: Image<P> + Iterator<Item = P>,
+    I: Image<P>,
     P: Debug,
 {
     fn overlay<Overlay, OverlayColor>(

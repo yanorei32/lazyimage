@@ -7,28 +7,29 @@ use derivative::Derivative;
 #[derivative(Debug)]
 pub struct NbitEncoder<I, F, Color, const BIT_WIDTH: u8 = 1>
 where
-    I: Iterator<Item = Color>,
+    I: IntoIterator<Item = Color>,
     F: Fn(Color) -> u8,
     Color: Debug,
 {
     remaining: u8,
     buffer: u8,
-    image: I,
+    #[derivative(Debug = "ignore")]
+    pixiter: I::IntoIter,
     mapper: F,
     color_t: PhantomData<Color>,
 }
 
 impl<I, F, Color, const BIT_WIDTH: u8> NbitEncoder<I, F, Color, BIT_WIDTH>
 where
-    I: Iterator<Item = Color>,
+    I: IntoIterator<Item = Color>,
     F: Fn(Color) -> u8,
     Color: Debug,
 {
-    pub fn new(image: I, mapper: F) -> Self {
+    pub fn new(pixiter: I, mapper: F) -> Self {
         Self {
             remaining: 0,
             buffer: 0,
-            image,
+            pixiter: pixiter.into_iter(),
             mapper,
             color_t: PhantomData,
         }
@@ -37,7 +38,7 @@ where
 
 impl<I, F, Color, const BIT_WIDTH: u8> Iterator for NbitEncoder<I, F, Color, BIT_WIDTH>
 where
-    I: Iterator<Item = Color>,
+    I: IntoIterator<Item = Color>,
     F: Fn(Color) -> u8,
     Color: Debug,
 {
@@ -45,7 +46,7 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.remaining == 0 {
-            self.buffer = (self.mapper)(self.image.next()?);
+            self.buffer = (self.mapper)(self.pixiter.next()?);
             self.remaining = BIT_WIDTH;
         }
 

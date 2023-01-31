@@ -9,7 +9,7 @@ use derivative::Derivative;
 #[derivative(Debug)]
 pub struct NbitDecoder<P, F, Color, const BIT_WIDTH: usize = 1>
 where
-    P: Iterator<Item = bool>,
+    P: IntoIterator<Item = bool>,
     F: Fn(u8) -> Color,
     Color: Debug,
 {
@@ -18,12 +18,12 @@ where
     #[derivative(Debug = "ignore")]
     mapper: F,
     #[derivative(Debug = "ignore")]
-    provider: P,
+    provider: P::IntoIter,
 }
 
 impl<P, F, Color, const BIT_WIDTH: usize> NbitDecoder<P, F, Color, BIT_WIDTH>
 where
-    P: Iterator<Item = bool>,
+    P: IntoIterator<Item = bool>,
     F: Fn(u8) -> Color,
     Color: Debug,
 {
@@ -31,7 +31,7 @@ where
         Self {
             ptr: CanvasIterator::new(size),
             size,
-            provider,
+            provider: provider.into_iter(),
             mapper,
         }
     }
@@ -39,7 +39,7 @@ where
 
 impl<P, F, Color, const BIT_WIDTH: usize> Iterator for NbitDecoder<P, F, Color, BIT_WIDTH>
 where
-    P: Iterator<Item = bool>,
+    P: IntoIterator<Item = bool>,
     F: Fn(u8) -> Color,
     Color: Debug,
 {
@@ -59,7 +59,7 @@ where
 
 impl<P, F, Color, const BIT_WIDTH: usize> Image<Color> for NbitDecoder<P, F, Color, BIT_WIDTH>
 where
-    P: Iterator<Item = bool>,
+    P: IntoIterator<Item = bool>,
     F: Fn(u8) -> Color,
     Color: Debug,
 {
@@ -72,7 +72,7 @@ where
 #[allow(clippy::module_name_repetitions)]
 pub trait NbitDecode<T>
 where
-    T: Iterator<Item = bool>,
+    T: IntoIterator<Item = bool>,
 {
     fn nbit_decode<F, Color, const BIT_WIDTH: usize>(
         self,
@@ -86,7 +86,7 @@ where
 
 impl<T> NbitDecode<T> for T
 where
-    T: Iterator<Item = bool>,
+    T: IntoIterator<Item = bool>,
 {
     fn nbit_decode<F, Color, const BIT_WIDTH: usize>(
         self,

@@ -9,7 +9,7 @@ use derivative::Derivative;
 #[derivative(Debug)]
 pub struct TextDecoder<P, F, Color>
 where
-    P: Iterator<Item = u8>,
+    P: IntoIterator<Item = u8>,
     F: Fn(u8) -> Option<Color>,
     Color: Debug,
 {
@@ -18,7 +18,7 @@ where
     #[derivative(Debug = "ignore")]
     mapper: F,
     #[derivative(Debug = "ignore")]
-    provider: P,
+    provider: P::IntoIter,
 }
 
 impl<P, F, Color> TextDecoder<P, F, Color>
@@ -31,7 +31,7 @@ where
         Self {
             ptr: CanvasIterator::new(size),
             size,
-            provider,
+            provider: provider.into_iter(),
             mapper,
         }
     }
