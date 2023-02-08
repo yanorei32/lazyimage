@@ -13,7 +13,6 @@ where
     Color: Debug,
 {
     ptr: CanvasIterator,
-    size: Size,
     #[derivative(Debug = "ignore")]
     provider: P::IntoIter,
 }
@@ -26,7 +25,6 @@ where
     pub fn new(provider: P, size: Size) -> Self {
         Self {
             ptr: CanvasIterator::new(size),
-            size,
             provider: provider.into_iter(),
         }
     }
@@ -50,7 +48,7 @@ where
     Color: Debug,
 {
     fn size(&self) -> Size {
-        self.size
+        self.ptr.size()
     }
 }
 

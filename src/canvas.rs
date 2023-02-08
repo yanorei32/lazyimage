@@ -17,6 +17,11 @@ impl CanvasIterator {
             pointer: Point::new(0, 0),
         }
     }
+
+    #[must_use]
+    pub fn size(&self) -> Size {
+        self.size
+    }
 }
 
 impl Iterator for CanvasIterator {

@@ -57,7 +57,7 @@ where
     OverlayColor: Into<BaseColor> + Debug,
 {
     fn size(&self) -> Size {
-        self.base.size()
+        self.ptr.size()
     }
 }
 
