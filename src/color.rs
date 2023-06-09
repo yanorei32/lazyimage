@@ -7,6 +7,12 @@ pub enum Cutout<T> {
     Opaque(T),
 }
 
+impl<T> Default for Cutout<T> {
+    fn default() -> Self {
+        Self::Cutout
+    }
+}
+
 impl<T> From<T> for Cutout<T> {
     fn from(c: T) -> Cutout<T> {
         Cutout::Opaque(c)

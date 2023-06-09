@@ -6,7 +6,6 @@ use crate::source::Font;
 use core::fmt::Debug;
 use core::iter::Iterator;
 
-// 8x16 font
 #[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct TextArea<const LENGTH: usize> {
