@@ -14,6 +14,7 @@ keywords = ["no_std", "graphics"]
 [dependencies]
 image = { version = "0.24.5", optional = true, default-features = false }
 derivative = { version = "2.2.0", features = ["use_core"], default-features = false }
+array-init = { version = "2.1.0" }
 
 [dev-dependencies]
 pretty_assertions = "1.3.0"
