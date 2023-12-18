@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["init.sh"],
+      "matchStrings": ["depName=(?<depName>.*?)?\\s.*?_VERSION=\"(?<currentValue>.*?)\""],
+      "versioningTemplate": "loose",
+      "datasourceTemplate": "repology"
+    },
+    {
+      "fileMatch": ["Dockerfile", "ci.yml"],
+      "matchStrings": ["depName=(?<depName>.*?)?\\s.*?_VERSION=\"(?<currentValue>.*?)\""],
+      "versioningTemplate": "loose",
+      "datasourceTemplate": "repology"
+    }
+  ]
+}
