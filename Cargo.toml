@@ -21,8 +21,8 @@ pretty_assertions = "1.3.0"
 itertools = "0.10.5"
 
 [features]
-default = ["debug_sink", "std"]
-debug_sink = ["png_sink"]
+default = ["image_crate_source", "png_sink", "std"]
+image_crate_source = ["image"]
 png_sink = ["std", "image", "image/png", "sink"]
 sink = []
 std = []
