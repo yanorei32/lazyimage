@@ -12,7 +12,7 @@ keywords = ["no_std", "graphics"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-image = { version = "0.24.7", optional = true, default-features = false }
+image = { version = "0.24.8", optional = true, default-features = false }
 derivative = { version = "2.2.0", features = ["use_core"], default-features = false }
 array-init = { version = "2.1.0" }
 
